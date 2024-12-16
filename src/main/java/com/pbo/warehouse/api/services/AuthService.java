@@ -4,6 +4,7 @@ import com.pbo.warehouse.api.dto.request.LoginRequestDto;
 import com.pbo.warehouse.api.dto.request.RegisterRequestDto;
 import com.pbo.warehouse.api.dto.response.LoginResponseDto;
 import com.pbo.warehouse.api.dto.response.RegisterResponseDto;
+import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.models.User;
 import com.pbo.warehouse.api.repositories.UserRepository;
 import com.pbo.warehouse.api.services.interfaces.AuthServiceIf;
@@ -16,11 +17,11 @@ public class AuthService implements AuthServiceIf {
         User user = userRepository.getUserByEmail(data.getEmail());
 
         if (user == null) {
-            throw new UnsupportedOperationException("User tidak ditemukan");
+            throw new AppException(400, "Email tidak terdaftar");
         }
 
         if (!data.getPassword().equals(user.getPassword())) {
-            throw new UnsupportedOperationException("Password salah");
+            throw new AppException(400, "Password salah");
         }
 
         String token = "token";
@@ -30,24 +31,20 @@ public class AuthService implements AuthServiceIf {
 
     @Override
     public RegisterResponseDto register(RegisterRequestDto data) {
-        try {
-            User user = new User(data.getName(), data.getEmail(), data.getPassword());
+        User user = new User(data.getName(), data.getEmail(), data.getPassword());
 
-            User existingUser = userRepository.getUserByEmail(data.getEmail());
-            if (existingUser != null) {
-                throw new Error("Email sudah terdaftar");
-            }
-
-            if (!userRepository.addUser(user)) {
-                throw new Error("Gagal menambahkan user");
-            }
-
-            String token = "token";
-
-            return new RegisterResponseDto(data.getName(), data.getEmail(), token);
-        } catch (Exception e) {
-            throw new Error(e.getMessage());
+        User existingUser = userRepository.getUserByEmail(data.getEmail());
+        if (existingUser != null) {
+            throw new AppException(400, "Email sudah terdaftar");
         }
+
+        if (!userRepository.addUser(user)) {
+            throw new AppException(400, "Gagal menambahkan user");
+        }
+
+        String token = "token";
+
+        return new RegisterResponseDto(data.getName(), data.getEmail(), token);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.pbo.warehouse.api.dto.request.LoginRequestDto;
 import com.pbo.warehouse.api.dto.request.RegisterRequestDto;
 import com.pbo.warehouse.api.dto.response.LoginResponseDto;
 import com.pbo.warehouse.api.dto.response.RegisterResponseDto;
+import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.services.AuthService;
 
 import spark.Request;
@@ -25,9 +26,14 @@ public class AuthController implements AuthControllerIf {
             return responseBody.error(400, "Email dan password tidak boleh kosong", null);
         }
 
-        LoginResponseDto response = authService.login(loginRequest);
-
-        return responseBody.success(200, "Login berhasil", gson.toJson(response));
+        try {
+            LoginResponseDto response = authService.login(loginRequest);
+            return responseBody.success(200, "Login berhasil", gson.toJson(response));
+        } catch (AppException e) {
+            return responseBody.error(e.getStatusCode(), e.getMessage(), null);
+        } catch (Exception e) {
+            return responseBody.error(500, e.getMessage(), null);
+        }
     }
 
     @Override
@@ -50,8 +56,10 @@ public class AuthController implements AuthControllerIf {
         try {
             RegisterResponseDto response = authService.register(registerRequest);
             return responseBody.success(200, "Registrasi berhasil", gson.toJson(response));
+        } catch (AppException e) {
+            return responseBody.error(e.getStatusCode(), e.getMessage(), null);
         } catch (Exception e) {
-            return responseBody.error(400, e.getMessage(), null);
+            return responseBody.error(500, e.getMessage(), null);
         }
     }
 
