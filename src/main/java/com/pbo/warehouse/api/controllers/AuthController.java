@@ -1,7 +1,7 @@
 package com.pbo.warehouse.api.controllers;
 
 import com.pbo.warehouse.api.controllers.interfaces.AuthControllerIf;
-import com.pbo.warehouse.api.dto.ResponseBody;
+import com.pbo.warehouse.api.dto.ResponseBodyDto;
 import com.pbo.warehouse.api.dto.request.LoginRequestDto;
 import com.pbo.warehouse.api.dto.request.RegisterRequestDto;
 import com.pbo.warehouse.api.dto.response.LoginResponseDto;
@@ -16,7 +16,7 @@ public class AuthController implements AuthControllerIf {
     private final AuthService authService = new AuthService();
 
     @Override
-    public ResponseBody login(Request req, Response res) {
+    public ResponseBodyDto login(Request req, Response res) {
         LoginRequestDto loginRequest = gson.fromJson(req.body(), LoginRequestDto.class);
 
         String email = loginRequest.getEmail();
@@ -37,7 +37,7 @@ public class AuthController implements AuthControllerIf {
     }
 
     @Override
-    public ResponseBody register(Request req, Response res) {
+    public ResponseBodyDto register(Request req, Response res) {
         RegisterRequestDto registerRequest = gson.fromJson(req.body(), RegisterRequestDto.class);
 
         String username = registerRequest.getName();
@@ -65,8 +65,7 @@ public class AuthController implements AuthControllerIf {
 
     @Override
     public void logout(Request req, Response res) {
-        // TODO Auto-generated method stub
+        // TODO: Implement logout
         throw new UnsupportedOperationException("Unimplemented method 'logout'");
     }
-
 }

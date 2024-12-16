@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
-public class ResponseBody {
+public class ResponseBodyDto {
     @Expose(serialize = false)
     private int statusCode;
     @Expose
@@ -18,7 +18,7 @@ public class ResponseBody {
     @Expose
     private String error;
 
-    public ResponseBody success(int statusCode, String message, String data) {
+    public ResponseBodyDto success(int statusCode, String message, String data) {
         this.success = true;
         this.statusCode = statusCode;
         this.message = message;
@@ -27,7 +27,7 @@ public class ResponseBody {
         return this;
     }
 
-    public ResponseBody error(int statusCode, String message, String error) {
+    public ResponseBodyDto error(int statusCode, String message, String error) {
         this.success = false;
         this.statusCode = statusCode;
         this.message = message;

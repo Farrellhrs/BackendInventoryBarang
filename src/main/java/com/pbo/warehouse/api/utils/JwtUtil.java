@@ -1,20 +1,21 @@
 package com.pbo.warehouse.api.utils;
 
 import java.util.Date;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
 
 public class JwtUtil {
-    private static final String SECRET_KEY = "adsmADSRT7roq838eogasdaaoudifbvsbnmsGF7OQCISAUC";
+    private static final String SECRET_KEY = "vmpnpySz6uTbUDAqkVZWwhvJn7EcVgNBLqLKbyyKFD9qh1ABAPtbd79kuN3gh3952RhnvDgm8Z7KrwaXgLVD4NtediWtpvULe1RQ";
+    private static final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
-    public static String generateToken(String username) {
+    public static String generateToken(String email) {
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hours expiration
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hours expiration
+                .signWith(key)
                 .compact();
     }
 
@@ -29,8 +30,9 @@ public class JwtUtil {
 
     public static Claims getClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(token)
-                .getBody();
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

@@ -8,6 +8,7 @@ import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.models.User;
 import com.pbo.warehouse.api.repositories.UserRepository;
 import com.pbo.warehouse.api.services.interfaces.AuthServiceIf;
+import com.pbo.warehouse.api.utils.JwtUtil;
 
 public class AuthService implements AuthServiceIf {
     private final UserRepository userRepository = new UserRepository();
@@ -24,7 +25,7 @@ public class AuthService implements AuthServiceIf {
             throw new AppException(400, "Password salah");
         }
 
-        String token = "token";
+        String token = JwtUtil.generateToken(user.getEmail());
 
         return new LoginResponseDto(user.getName(), user.getEmail(), token);
     }
@@ -42,7 +43,7 @@ public class AuthService implements AuthServiceIf {
             throw new AppException(400, "Gagal menambahkan user");
         }
 
-        String token = "token";
+        String token = JwtUtil.generateToken(user.getEmail());
 
         return new RegisterResponseDto(data.getName(), data.getEmail(), token);
     }
