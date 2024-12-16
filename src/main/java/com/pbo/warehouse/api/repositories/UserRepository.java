@@ -4,7 +4,6 @@
  */
 package com.pbo.warehouse.api.repositories;
 
-import com.mysql.cj.jdbc.exceptions.SQLError;
 import com.pbo.warehouse.api.jbdc.DatabaseConnection;
 import com.pbo.warehouse.api.models.User;
 import com.pbo.warehouse.api.repositories.interfaces.UserRepositoryIf;
@@ -25,8 +24,9 @@ public class UserRepository implements UserRepositoryIf {
     @Override
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
+        User user = new User();
 
-        String query = "SELECT * FROM users";
+        String query = "SELECT * FROM " + user.getTableName();
 
         // try-with-resources automatically close database connection when done
         try (Connection connection = DatabaseConnection.connect();
@@ -34,7 +34,7 @@ public class UserRepository implements UserRepositoryIf {
                 ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                User user = new User(
+                user = new User(
                         rs.getString("name"),
                         rs.getString("email"));
                 users.add(user);
@@ -50,9 +50,9 @@ public class UserRepository implements UserRepositoryIf {
 
     @Override
     public User getUserByEmail(String email) {
-        User user = null;
+        User user = new User();
 
-        String query = "SELECT * FROM users WHERE email = ?";
+        String query = "SELECT * FROM " + user.getTableName() + " WHERE email = ?";
 
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -65,6 +65,8 @@ public class UserRepository implements UserRepositoryIf {
                             rs.getString("name"),
                             rs.getString("email"),
                             rs.getString("password"));
+                } else {
+                    user = null;
                 }
             }
 
@@ -78,14 +80,17 @@ public class UserRepository implements UserRepositoryIf {
 
     @Override
     public boolean addUser(User user) {
-        String query = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+        String query = "INSERT INTO " + user.getTableName() + " (id, name, email, password) VALUES (?, ?, ?, ?)";
+
+        user.setId();
 
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {
 
-            stmt.setString(1, user.getName());
-            stmt.setString(2, user.getEmail());
-            stmt.setString(3, user.getPassword());
+            stmt.setString(1, user.getId());
+            stmt.setString(2, user.getName());
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getPassword());
 
             int affectedRows = stmt.executeUpdate();
 

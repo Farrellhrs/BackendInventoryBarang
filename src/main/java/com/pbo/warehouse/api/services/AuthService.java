@@ -20,11 +20,11 @@ public class AuthService implements AuthServiceIf {
         User user = userRepository.getUserByEmail(data.getEmail());
 
         if (user == null) {
-            throw new AppException(400, "Email tidak terdaftar");
+            throw new AppException(400, "Email atau password salah");
         }
 
         if (!BCrypt.checkpw(data.getPassword(), user.getPassword())) {
-            throw new AppException(400, "Password salah");
+            throw new AppException(400, "Email atau password salah");
         }
 
         String token = JwtUtil.generateToken(user.getEmail());

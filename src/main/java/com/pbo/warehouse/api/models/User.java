@@ -8,21 +8,24 @@ package com.pbo.warehouse.api.models;
  *
  * @author dika-mac
  */
-public class User {
-    private int id;
+public class User extends Model {
+    private String id;
     private String name;
     private String email;
     private String password;
 
     public User() {
+        super("users");
     }
 
     public User(String name, String email) {
+        super("users");
         this.name = name;
         this.email = email;
     }
 
     public User(String name, String email, String password) {
+        super("users");
         this.name = name;
         this.email = email;
         this.password = password;
@@ -31,15 +34,13 @@ public class User {
     /**
      * @return the id
      */
-    public int getId() {
+    public String getId() {
         return this.id;
     }
 
-    /**
-     * @param id the id to set
-     */
-    public void setId(int id) {
-        this.id = id;
+    public void setId() {
+        // generate uuid
+        this.id = java.util.UUID.randomUUID().toString();
     }
 
     /**
