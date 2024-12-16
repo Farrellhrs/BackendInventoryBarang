@@ -17,6 +17,7 @@ public class AuthController implements AuthControllerIf {
 
     @Override
     public ResponseBodyDto login(Request req, Response res) {
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
         LoginRequestDto loginRequest = gson.fromJson(req.body(), LoginRequestDto.class);
 
         String email = loginRequest.getEmail();
@@ -38,6 +39,7 @@ public class AuthController implements AuthControllerIf {
 
     @Override
     public ResponseBodyDto register(Request req, Response res) {
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
         RegisterRequestDto registerRequest = gson.fromJson(req.body(), RegisterRequestDto.class);
 
         String username = registerRequest.getName();

@@ -28,28 +28,14 @@ public class Main {
             Spark.stop(); // Stops the Spark server
         }));
 
-        get("/api/test", (req, res) -> {
+        get("/api/hello-world", (req, res) -> {
             res.type("application/json");
-
-            JsonResponse response = new JsonResponse(true, "This is a message", "Sample data 2");
-            return new Gson().toJson(response);
+            return new Gson().toJson("Hello World");
         });
 
         // Initialize routes
         AuthRoute.init();
 
         System.out.println("Server started on port " + PORT);
-    }
-
-    public static class JsonResponse {
-        public boolean success;
-        public String message;
-        public Object data;
-
-        public JsonResponse(boolean success, String message, Object data) {
-            this.success = success;
-            this.message = message;
-            this.data = data;
-        }
     }
 }

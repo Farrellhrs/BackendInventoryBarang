@@ -1,5 +1,7 @@
 package com.pbo.warehouse.api.services;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import com.pbo.warehouse.api.dto.request.LoginRequestDto;
 import com.pbo.warehouse.api.dto.request.RegisterRequestDto;
 import com.pbo.warehouse.api.dto.response.LoginResponseDto;
@@ -21,7 +23,7 @@ public class AuthService implements AuthServiceIf {
             throw new AppException(400, "Email tidak terdaftar");
         }
 
-        if (!data.getPassword().equals(user.getPassword())) {
+        if (!BCrypt.checkpw(data.getPassword(), user.getPassword())) {
             throw new AppException(400, "Password salah");
         }
 
@@ -38,6 +40,10 @@ public class AuthService implements AuthServiceIf {
         if (existingUser != null) {
             throw new AppException(400, "Email sudah terdaftar");
         }
+
+        String hashedPassword = BCrypt.hashpw(data.getPassword(), BCrypt.gensalt());
+
+        user.setPassword(hashedPassword);
 
         if (!userRepository.addUser(user)) {
             throw new AppException(400, "Gagal menambahkan user");
