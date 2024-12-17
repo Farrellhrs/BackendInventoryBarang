@@ -3,9 +3,10 @@ package com.pbo.warehouse.api.models;
 public abstract class Product extends Model {
     protected String subTableName;
     private String id;
+    private String skuCode; // stock keeping unit
     private String name;
     private String category;
-    private int max_stock;
+    private int maxStock;
     private String createdBy;
     private User creator;
 
@@ -20,6 +21,14 @@ public abstract class Product extends Model {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getSkuCode() {
+        return skuCode;
+    }
+
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
     }
 
     public String getName() {
