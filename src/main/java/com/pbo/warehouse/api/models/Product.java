@@ -47,12 +47,12 @@ public abstract class Product extends Model {
         this.category = category;
     }
 
-    public int getMax_stock() {
-        return max_stock;
+    public int getMaxStock() {
+        return maxStock;
     }
 
-    public void setMax_stock(int max_stock) {
-        this.max_stock = max_stock;
+    public void setMax_stock(int maxStock) {
+        this.maxStock = maxStock;
     }
 
     public User getCreator() {
