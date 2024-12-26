@@ -9,6 +9,6 @@ public class PaginationUtil {
         boolean hasNext = page < totalPage;
         boolean hasPrev = page > 1;
 
-        return new PaginationResponse(page, limit, totalPage, totalData, hasNext, hasPrev);
+        return new PaginationResponse(page, limit, totalData, totalPage, hasNext, hasPrev);
     }
 }

@@ -1,5 +1,8 @@
 package com.pbo.warehouse.api.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Product extends Model {
     protected String subTableName;
     private String id;
@@ -82,5 +85,20 @@ public abstract class Product extends Model {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public static List<String> toColumns() {
+        List<String> columns = new ArrayList<>();
+        columns.add("id");
+        columns.add("sku_code");
+        columns.add("name");
+        columns.add("category");
+        columns.add("max_stock");
+        columns.add("stock");
+        columns.add("created_by");
+        columns.add("created_at");
+        columns.add("updated_at");
+
+        return columns;
     }
 }

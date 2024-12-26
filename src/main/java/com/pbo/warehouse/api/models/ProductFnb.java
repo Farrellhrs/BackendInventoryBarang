@@ -1,6 +1,8 @@
 package com.pbo.warehouse.api.models;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ProductFnb extends Product {
     private Date expireDate;
@@ -15,5 +17,12 @@ public class ProductFnb extends Product {
 
     public void setExpireDate(Date expireDate) {
         this.expireDate = expireDate;
+    }
+
+    public static List<String> toColumns() {
+        List<String> columns = new ArrayList<>();
+        columns.add("expire_date");
+
+        return columns;
     }
 }

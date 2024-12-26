@@ -21,19 +21,42 @@ public class ProductRepository implements ProductRepositoryIf {
     public List<ProductElectronic> getAllProductElectronics(GetProductsRequestDto params) {
         List<ProductElectronic> products = new ArrayList<>();
 
+        String sortAndOrderQuery = "";
+        if (params.getSort() != null) {
+            sortAndOrderQuery = "ORDER BY p." + params.getSort() + " " + params.getOrder();
+        }
+        if (params.getSortByDetail() != null) {
+            sortAndOrderQuery = "ORDER BY pe." + params.getSortByDetail() + " " + params.getOrder();
+        }
+
+        String searchQuery = "";
+        if (params.getName() != null) {
+            searchQuery = "AND p.name LIKE ? ";
+        }
+
         String query = "SELECT p.id, p.sku_code, p.name, p.category, p.max_stock, p.created_at, p.updated_at, pe.type, sr.stock FROM "
                 + new ProductElectronic().getTableName()
-                + " p JOIN " + new ProductElectronic().getSubTableName()
+                + " p LEFT JOIN " + new ProductElectronic().getSubTableName()
                 + " pe ON pe.product_id = p.id LEFT JOIN (SELECT product_id, stock, created_at FROM "
                 + new StockRecord().getTableName()
                 + " WHERE product_id IN (SELECT id FROM " + new ProductElectronic().getTableName()
-                + " WHERE category = 'electronic') ORDER BY created_at DESC LIMIT 1) sr ON sr.product_id = p.id WHERE p.category = 'electronic' ORDER BY p.name DESC LIMIT ? OFFSET ?";
+                + " WHERE category = 'electronic') ORDER BY created_at DESC LIMIT 1) sr ON sr.product_id = p.id WHERE p.category = 'electronic' "
+                + searchQuery
+                + sortAndOrderQuery + " LIMIT ? OFFSET ?";
+
+        System.out.println(query);
 
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {
 
-            stmt.setInt(1, params.getLimit());
-            stmt.setInt(2, params.getOffset());
+            if (params.getName() != null) {
+                stmt.setString(1, "%" + params.getName() + "%");
+                stmt.setInt(2, params.getLimit());
+                stmt.setInt(3, params.getOffset());
+            } else {
+                stmt.setInt(1, params.getLimit());
+                stmt.setInt(2, params.getOffset());
+            }
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
