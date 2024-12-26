@@ -8,4 +8,12 @@ public class ProductFnb extends Product {
     public ProductFnb() {
         super("product_fnbs");
     }
+
+    public Date getExpireDate() {
+        return expireDate;
+    }
+
+    public void setExpireDate(Date expireDate) {
+        this.expireDate = expireDate;
+    }
 }

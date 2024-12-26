@@ -7,7 +7,10 @@ package com.pbo.warehouse.api;
 import static spark.Spark.*;
 
 import com.google.gson.Gson;
+import com.pbo.warehouse.api.middleware.CorsMiddleware;
+import com.pbo.warehouse.api.middleware.LoggingMiddleware;
 import com.pbo.warehouse.api.routes.AuthRoute;
+import com.pbo.warehouse.api.routes.ProductRoute;
 
 import spark.Spark;
 
@@ -19,8 +22,10 @@ public class Main {
 
     public static void main(String[] args) {
         final int PORT = 8090;
-
         port(PORT);
+
+        CorsMiddleware.apply();
+        LoggingMiddleware.apply();
 
         // Register a shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -35,6 +40,7 @@ public class Main {
 
         // Initialize routes
         AuthRoute.init();
+        ProductRoute.init();
 
         System.out.println("Server started on port " + PORT);
     }

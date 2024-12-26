@@ -7,12 +7,17 @@ public abstract class Product extends Model {
     private String name;
     private String category;
     private int maxStock;
+    private int stock;
     private String createdBy;
     private User creator;
 
     public Product(String subTableName) {
         super("products");
         this.subTableName = subTableName;
+    }
+
+    public String getSubTableName() {
+        return this.subTableName;
     }
 
     public String getId() {
@@ -51,8 +56,16 @@ public abstract class Product extends Model {
         return maxStock;
     }
 
-    public void setMax_stock(int maxStock) {
+    public void setMaxStock(int maxStock) {
         this.maxStock = maxStock;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 
     public User getCreator() {

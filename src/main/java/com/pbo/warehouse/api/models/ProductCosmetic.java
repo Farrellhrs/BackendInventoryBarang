@@ -9,4 +9,11 @@ public class ProductCosmetic extends Product {
         super("product_cosmetics");
     }
 
+    public Date getExpireDate() {
+        return expireDate;
+    }
+
+    public void setExpireDate(Date expireDate) {
+        this.expireDate = expireDate;
+    }
 }

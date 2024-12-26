@@ -15,6 +15,10 @@ public class ResponseBodyDto {
     private String dataStr;
     @Expose
     private Object data;
+    @Expose(serialize = false)
+    private String paginationStr;
+    @Expose
+    private Object pagination;
     @Expose
     private String error;
 
@@ -23,6 +27,17 @@ public class ResponseBodyDto {
         this.statusCode = statusCode;
         this.message = message;
         this.dataStr = data;
+
+        return this;
+    }
+
+    public ResponseBodyDto successWithPagination(int statusCode, String message, String data,
+            String pagination) {
+        this.success = true;
+        this.statusCode = statusCode;
+        this.message = message;
+        this.dataStr = data;
+        this.paginationStr = pagination;
 
         return this;
     }
@@ -42,6 +57,7 @@ public class ResponseBodyDto {
                 .create();
 
         this.data = gson.fromJson(this.dataStr, Object.class);
+        this.pagination = gson.fromJson(this.paginationStr, Object.class);
 
         return gson.toJson(this);
     }
