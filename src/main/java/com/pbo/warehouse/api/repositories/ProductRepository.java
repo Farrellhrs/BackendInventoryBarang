@@ -23,7 +23,11 @@ public class ProductRepository implements ProductRepositoryIf {
 
         String sortAndOrderQuery = "";
         if (params.getSort() != null) {
-            sortAndOrderQuery = "ORDER BY p." + params.getSort() + " " + params.getOrder();
+            if ("stock".equals(params.getSort())) {
+                sortAndOrderQuery = "ORDER BY ls.stock " + params.getOrder();
+            } else {
+                sortAndOrderQuery = "ORDER BY p." + params.getSort() + " " + params.getOrder();
+            }
         }
         if (params.getSortByDetail() != null) {
             sortAndOrderQuery = "ORDER BY pe." + params.getSortByDetail() + " " + params.getOrder();
@@ -34,15 +38,24 @@ public class ProductRepository implements ProductRepositoryIf {
             searchQuery = "AND p.name LIKE ? ";
         }
 
-        String query = "SELECT p.id, p.sku_code, p.name, p.category, p.max_stock, p.created_at, p.updated_at, pe.type, sr.stock FROM "
-                + new ProductElectronic().getTableName()
-                + " p LEFT JOIN " + new ProductElectronic().getSubTableName()
-                + " pe ON pe.product_id = p.id LEFT JOIN (SELECT product_id, stock, created_at FROM "
-                + new StockRecord().getTableName()
-                + " WHERE product_id IN (SELECT id FROM " + new ProductElectronic().getTableName()
-                + " WHERE category = 'electronic') ORDER BY created_at DESC LIMIT 1) sr ON sr.product_id = p.id WHERE p.category = 'electronic' "
-                + searchQuery
-                + sortAndOrderQuery + " LIMIT ? OFFSET ?";
+        String query = "WITH LatestStock AS (" +
+                "    SELECT sr.product_id, sr.stock, sr.created_at " +
+                "    FROM " + new StockRecord().getTableName() + " sr " +
+                "    WHERE sr.product_id IN (SELECT id FROM " + new ProductElectronic().getTableName() +
+                "                              WHERE category = 'electronic') " +
+                "      AND sr.created_at = (SELECT MAX(sr2.created_at) " +
+                "                          FROM " + new StockRecord().getTableName() + " sr2 " +
+                "                          WHERE sr2.product_id = sr.product_id)" +
+                ") " +
+                "SELECT p.id, p.sku_code, p.name, p.category, p.max_stock, p.created_at, p.updated_at, " +
+                "       pe.type, ls.stock " +
+                "FROM " + new ProductElectronic().getTableName() + " p " +
+                "LEFT JOIN " + new ProductElectronic().getSubTableName() + " pe ON pe.product_id = p.id " +
+                "LEFT JOIN LatestStock ls ON ls.product_id = p.id " +
+                "WHERE p.category = 'electronic' " +
+                searchQuery + " " +
+                sortAndOrderQuery +
+                " LIMIT ? OFFSET ?;";
 
         System.out.println(query);
 
