@@ -3,6 +3,7 @@ package com.pbo.warehouse.api.repositories.interfaces;
 import java.util.List;
 
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
+import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
 import com.pbo.warehouse.api.models.Product;
 import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
@@ -17,7 +18,7 @@ public interface ProductRepositoryIf {
 
     List<ProductFnb> getAllProductFnbs(GetProductsRequestDto params);
 
-    Product getProductById(int id);
+    GetProductResponseDto getProductById(String id);
 
     boolean insertProduct(Product product);
 

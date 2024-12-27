@@ -38,8 +38,11 @@ public class ProductRoute {
         });
 
         get("/api/product/find/:id", (req, res) -> {
-            // TODO: implement this
-            return "Hello World";
+            ResponseBodyDto response = productController.getProductById(req, res);
+
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
 
         put("/api/product/update/:id", (req, res) -> {

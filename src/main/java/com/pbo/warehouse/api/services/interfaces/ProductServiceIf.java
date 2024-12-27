@@ -5,4 +5,6 @@ import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
 
 public interface ProductServiceIf {
     GetProductsResponseDto getProducts(GetProductsRequestDto params);
+
+    GetProductsResponseDto getProductById(String id);
 }
