@@ -5,6 +5,7 @@ import java.util.Date;
 import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
+import com.pbo.warehouse.api.models.User;
 
 public class GetProductResponseDto {
     private String id;
@@ -14,6 +15,7 @@ public class GetProductResponseDto {
     private Date entryDate;
     private int stock;
     private int maxStock;
+    private User createdBy;
     private ProductDetails details;
 
     public static class ProductDetails {
@@ -22,6 +24,9 @@ public class GetProductResponseDto {
 
         // Cosmetic & Fnb details
         private Date expireDate;
+
+        public ProductDetails() {
+        }
 
         public ProductDetails(String type, Date expireDate) {
             this.type = type;
@@ -61,35 +66,47 @@ public class GetProductResponseDto {
     }
 
     public String getId() {
-        return id;
+        return this.id;
     }
 
     public String getSkuCode() {
-        return skuCode;
+        return this.skuCode;
     }
 
     public String getProductName() {
-        return productName;
+        return this.productName;
     }
 
     public String getCategory() {
-        return category;
+        return this.category;
     }
 
     public Date getEntryDate() {
-        return entryDate;
+        return this.entryDate;
     }
 
     public int getStock() {
-        return stock;
+        return this.stock;
     }
 
     public int getMaxStock() {
-        return maxStock;
+        return this.maxStock;
+    }
+
+    public User getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(User user) {
+        this.createdBy = user;
     }
 
     public ProductDetails getDetails() {
-        return details;
+        return this.details;
+    }
+
+    public void setDetails(ProductDetails details) {
+        this.details = details;
     }
 
     public static GetProductResponseDto fromEntityElectronic(ProductElectronic product) {

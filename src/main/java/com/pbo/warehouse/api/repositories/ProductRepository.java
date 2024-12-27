@@ -15,6 +15,7 @@ import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
 import com.pbo.warehouse.api.models.StockRecord;
+import com.pbo.warehouse.api.models.User;
 import com.pbo.warehouse.api.repositories.interfaces.ProductRepositoryIf;
 
 public class ProductRepository implements ProductRepositoryIf {
@@ -261,105 +262,93 @@ public class ProductRepository implements ProductRepositoryIf {
 
     @Override
     public GetProductResponseDto getProductById(String id) {
-        GetProductResponseDto products = new GetProductResponseDto();
-        String query1 = 
-                "WITH LatestStock AS (" +
-                "    SELECT sr.product_id, sr.stock, sr.created_at " +
-                "    FROM " + new StockRecord().getTableName() + " sr " +
-                "    WHERE sr.product_id IN (SELECT id FROM ? WHERE category = 'fnb') " +
-                "      AND sr.created_at = (SELECT MAX(sr2.created_at) " +
-                "                          FROM " + new StockRecord().getTableName() + " sr2 " +
-                "                          WHERE sr2.product_id = sr.product_id)" +
-                ") " +
-                "SELECT p.id, p.sku_code, p.name, p.category, p.max_stock, p.created_at, p.updated_at, " +
-                "       pc.expire_date, ls.stock " +
-                "FROM ? p " +
-                "LEFT JOIN ? pc ON pc.product_id = p.id " +
-                "LEFT JOIN LatestStock ls ON ls.product_id = p.id " +
-                "WHERE p.category = 'fnb' " +
-                " LIMIT 1;";
-        String query2 = 
-                "SELECT category" +
-                "FROM " + new ProductFnb().getTableName() +
-                "WHERE id = " + id +
-                " LIMIT 1;";
+        GetProductResponseDto product = new GetProductResponseDto();
 
-        System.out.println(query1);
-        System.out.println(query2);
+        String query = "SELECT p.*, sr.stock, u.name AS user_name, u.email FROM products p JOIN users u ON p.created_by = u.id LEFT JOIN (SELECT product_id, stock, created_at FROM stock_records WHERE product_id = ? ORDER BY created_at DESC LIMIT 1) sr ON sr.product_id = p.id WHERE p.id = ?;";
+
+        System.out.println(query);
 
         try (Connection connection = DatabaseConnection.connect();
-                PreparedStatement stmt = connection.prepareStatement(query2)) {
+                PreparedStatement stmt = connection.prepareStatement(query)) {
 
+            stmt.setString(1, id);
+            stmt.setString(2, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    String category = rs.getString("category");
-                    try (Connection connections = DatabaseConnection.connect();
-                        PreparedStatement stmts = connections.prepareStatement(query1)) {
-            
-                    if ("electronic".equals(category)) {
-                        stmts.setString(1, new ProductElectronic().getTableName());
-                        stmts.setString(2, new ProductElectronic().getTableName());
-                        stmts.setString(3, new ProductElectronic().getSubTableName());
-                    } else if ("cosmetic".equals(category)){
-                        stmts.setString(1, new ProductCosmetic().getTableName());
-                        stmts.setString(2, new ProductCosmetic().getTableName());
-                        stmts.setString(3, new ProductCosmetic().getSubTableName());
-                    } else {
-                        stmts.setString(1, new ProductFnb().getTableName());
-                        stmts.setString(2, new ProductFnb().getTableName());
-                        stmts.setString(3, new ProductFnb().getSubTableName());
-                    }
+                    product = new GetProductResponseDto(
+                            rs.getString("id"),
+                            rs.getString("sku_code"),
+                            rs.getString("name"),
+                            rs.getString("category"),
+                            rs.getDate("created_at"),
+                            rs.getInt("stock"),
+                            rs.getInt("max_stock"),
+                            null);
 
-                    try (ResultSet rss = stmts.executeQuery()) {
-                        while (rss.next()) {
-                            if ("electronic".equals(category)) {
-                                products =  new GetProductResponseDto(
-                                    rss.getString("id"),
-                                    rss.getString("sku_code"),
-                                    rss.getString("name"),
-                                    rss.getString("category"),
-                                    rss.getDate("created_at"),
-                                    rss.getInt("stock"),
-                                    rss.getInt("max_stock"),
-                                    new ProductDetails(null, rs.getDate("expire_date")));
-                            } else if ("cosmetic".equals(category)){
-                                products =  new GetProductResponseDto(
-                                    rss.getString("id"),
-                                    rss.getString("sku_code"),
-                                    rss.getString("name"),
-                                    rss.getString("category"),
-                                    rss.getDate("created_at"),
-                                    rss.getInt("stock"),
-                                    rss.getInt("max_stock"),
-                                    new ProductDetails(null, rs.getDate("expire_date")));
-                            } else {
-                                products =  new GetProductResponseDto(
-                                    rss.getString("id"),
-                                    rss.getString("sku_code"),
-                                    rss.getString("name"),
-                                    rss.getString("category"),
-                                    rss.getDate("created_at"),
-                                    rss.getInt("stock"),
-                                    rss.getInt("max_stock"),
-                                    new ProductDetails(rss.getString("type"), null));
-                            }
-                        }
-                    }
+                    User user = new User();
+                    user.setName(rs.getString("user_name"));
+                    user.setEmail(rs.getString("email"));
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        throw new Error(e.getMessage());
-                    }
+                    product.setCreatedBy(user);
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e.getMessage());
         }
 
-        return products;
+        String category = product.getCategory();
+        String queryDetails = "";
+
+        switch (category) {
+            case "electronic":
+                queryDetails = "SELECT * FROM " + new ProductElectronic().getSubTableName() + " WHERE product_id = ?;";
+                break;
+            case "cosmetic":
+                queryDetails = "SELECT * FROM " + new ProductCosmetic().getSubTableName() + " WHERE product_id = ?;";
+                break;
+            case "fnb":
+                queryDetails = "SELECT * FROM " + new ProductFnb().getSubTableName() + " WHERE product_id = ?;";
+                break;
+            default:
+                break;
+        }
+
+        System.out.println(queryDetails);
+
+        try (Connection connection = DatabaseConnection.connect();
+                PreparedStatement stmt = connection.prepareStatement(queryDetails)) {
+
+            stmt.setString(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ProductDetails details = new ProductDetails();
+
+                    switch (category) {
+                        case "electronic":
+                            details.setType(rs.getString("type"));
+                            break;
+                        case "cosmetic":
+                            details.setExpireDate(rs.getDate("expire_date"));
+                            break;
+                        case "fnb":
+                            details.setExpireDate(rs.getDate("expire_date"));
+                            break;
+                        default:
+                            break;
+                    }
+
+                    product.setDetails(details);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e.getMessage());
+        }
+
+        return product;
     }
 
     @Override

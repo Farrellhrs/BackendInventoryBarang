@@ -63,14 +63,8 @@ public class ProductService implements ProductServiceIf {
     }
 
     @Override
-    public GetProductsResponseDto getProductById(String id) {
-        List<GetProductResponseDto> products = new ArrayList<>();
-        products.add(productRepository.getProductById(id));
-        PaginationResponse pagination = PaginationUtil.getPagination(1, 1, 1);
-
-        GetProductsResponseDto response = new GetProductsResponseDto(
-                products, pagination);
-
-        return response;
+    public GetProductResponseDto getProductById(String id) {
+        GetProductResponseDto product = productRepository.getProductById(id);
+        return product;
     }
 }

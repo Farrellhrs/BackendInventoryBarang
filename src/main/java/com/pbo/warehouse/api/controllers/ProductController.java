@@ -109,15 +109,18 @@ public class ProductController implements ProductControllerIf {
         final ResponseBodyDto responseBody = new ResponseBodyDto();
 
         try {
-            String id = req.queryParams("id");
+            String id = req.params("id");
 
-            GetProductsResponseDto response = productService.getProductById(id);
+            if (id == null) {
+                return responseBody.error(400, "ID tidak boleh kosong", null);
+            }
 
-            return responseBody.successWithPagination(
+            GetProductResponseDto response = productService.getProductById(id);
+
+            return responseBody.success(
                     200,
                     "Berhasil",
-                    gson.toJson(response.getData()),
-                    gson.toJson(response.getPagination()));
+                    gson.toJson(response));
         } catch (AppException e) {
             return responseBody.error(e.getStatusCode(), e.getMessage(), null);
         } catch (Exception e) {
