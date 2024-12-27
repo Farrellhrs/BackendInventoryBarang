@@ -106,8 +106,23 @@ public class ProductController implements ProductControllerIf {
 
     @Override
     public ResponseBodyDto getProductById(Request req, Response res) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getProductById'");
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
+
+        try {
+            String id = req.queryParams("id");
+
+            GetProductsResponseDto response = productService.getProductById(id);
+
+            return responseBody.successWithPagination(
+                    200,
+                    "Berhasil",
+                    gson.toJson(response.getData()),
+                    gson.toJson(response.getPagination()));
+        } catch (AppException e) {
+            return responseBody.error(e.getStatusCode(), e.getMessage(), null);
+        } catch (Exception e) {
+            return responseBody.error(500, e.getMessage(), null);
+        }
     }
 
     @Override
