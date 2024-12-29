@@ -1,5 +1,7 @@
 package com.pbo.warehouse.api.dto.request;
 
+import java.util.Date;
+
 public class AddProductRequestDto {
     private String skuCode;
     private String name;
@@ -8,6 +10,40 @@ public class AddProductRequestDto {
     private int stock;
     private String createdBy;
     private Object additionalField; 
+    public AddProductRequestDto(){
+        
+    }
+    public static class ProductDetails {
+        // Electronic details
+        private String type;
+
+        // Cosmetic & Fnb details
+        private Date expireDate;
+
+        public ProductDetails() {
+        }
+
+        public ProductDetails(String type, Date expireDate) {
+            this.type = type;
+            this.expireDate = expireDate;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public Date getExpireDate() {
+            return expireDate;
+        }
+
+        public void setExpireDate(Date expireDate) {
+            this.expireDate = expireDate;
+        }
+    }
     public String getSkuCode() {
         return skuCode;
     }
