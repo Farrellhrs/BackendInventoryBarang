@@ -174,8 +174,14 @@ public class ProductController implements ProductControllerIf {
                 if (additionalField == null) {
                     return responseBody.error(400, "expireDate wajib untuk kategori fnb atau cosmetic", null);
                 }
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                productDetails.setExpireDate(dateFormat.parse(additionalField));
+                Date expireDate;
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    expireDate = dateFormat.parse(additionalField);
+                    productDetails.setExpireDate(expireDate);
+                } catch (ParseException e) {
+                    return responseBody.error(400, "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
+                }
             } else if (category.equals("electronic")) {
                 additionalField = req.queryParams("type");
                 if (additionalField == null) {
@@ -187,13 +193,27 @@ public class ProductController implements ProductControllerIf {
                 if (additionalField == null) {
                     return responseBody.error(400, "expireDate wajib untuk kategori fnb atau cosmetic", null);
                 }
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                productDetails.setExpireDate(dateFormat.parse(additionalField));
+                Date expireDate;
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    expireDate = dateFormat.parse(additionalField);
+                    productDetails.setExpireDate(expireDate);
+                } catch (ParseException e) {
+                    return responseBody.error(400, "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
+                }
             }
 
-
+            // Populate product DTO
+            product.setSkuCode(skuCode);
+            product.setName(name);
+            product.setCategory(category);
+            product.setMaxStock(maxStock);
+            product.setStock(stock);
+            product.setCreatedBy(createdBy);
+            product.setAdditionalField(productDetails);
+            
             // Menyimpan produk ke database menggunakan service
-            productService.addProduct(product);
+            productService.addproduct(product);
 
             return responseBody.success(201, "Produk berhasil ditambahkan", gson.toJson(product));
             } catch (AppException e) {
