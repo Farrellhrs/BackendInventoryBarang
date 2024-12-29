@@ -7,6 +7,7 @@ import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
 import com.pbo.warehouse.api.dto.response.PaginationResponse;
+import com.pbo.warehouse.api.models.Product;
 import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
@@ -67,4 +68,10 @@ public class ProductService implements ProductServiceIf {
         GetProductResponseDto product = productRepository.getProductById(id);
         return product;
     }
+
+    @Override
+    public boolean addproduct(Product product) {
+        return productRepository.insertProduct(product);
+    }
+
 }
