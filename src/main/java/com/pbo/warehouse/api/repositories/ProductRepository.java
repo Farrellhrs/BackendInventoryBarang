@@ -3,6 +3,7 @@ package com.pbo.warehouse.api.repositories;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -353,8 +354,23 @@ public class ProductRepository implements ProductRepositoryIf {
 
     @Override
     public boolean insertProduct(Product product) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'insertProduct'");
+        String tableName = product.getSubTableName(); // Sub-table or base table logic
+        String sql = "INSERT INTO " + tableName + " (id, sku_code, name, category, max_stock, stock, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, product.getId());
+            stmt.setString(2, product.getSkuCode());
+            stmt.setString(3, product.getName());
+            stmt.setString(4, product.getCategory());
+            stmt.setInt(5, product.getMaxStock());
+            stmt.setInt(6, product.getStock());
+            stmt.setString(7, product.getCreatedBy());
+
+            return stmt.executeUpdate() > 0; // Returns true if the product was successfully inserted
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
