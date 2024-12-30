@@ -6,9 +6,9 @@ import com.pbo.warehouse.api.dto.request.AddInOutRequestDto;
 import com.pbo.warehouse.api.dto.request.GetAllInOutRequestDto;
 import com.pbo.warehouse.api.dto.request.UpdateInOutRequestDto;
 import com.pbo.warehouse.api.dto.response.GetInOutResponseDto;
-import com.pbo.warehouse.api.services.interfaces.InboundServiceIf;
+import com.pbo.warehouse.api.services.interfaces.InOutRecordServiceIf;
 
-public class InboundService implements InboundServiceIf {
+public class InOutRecordService implements InOutRecordServiceIf {
 
     @Override
     public List<GetInOutResponseDto> getAllInbounds(GetAllInOutRequestDto params) {

@@ -1,12 +1,12 @@
 package com.pbo.warehouse.api.controllers;
 
-import com.pbo.warehouse.api.controllers.interfaces.InboundControllerIf;
+import com.pbo.warehouse.api.controllers.interfaces.InOutRecordControllerIf;
 import com.pbo.warehouse.api.dto.ResponseBodyDto;
 
 import spark.Request;
 import spark.Response;
 
-public class InboundController implements InboundControllerIf {
+public class InOutRecordController implements InOutRecordControllerIf {
 
     @Override
     public ResponseBodyDto getAllInbounds(Request req, Response res) {

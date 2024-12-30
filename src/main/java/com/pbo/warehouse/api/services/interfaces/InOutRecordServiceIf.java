@@ -7,7 +7,7 @@ import com.pbo.warehouse.api.dto.request.GetAllInOutRequestDto;
 import com.pbo.warehouse.api.dto.request.UpdateInOutRequestDto;
 import com.pbo.warehouse.api.dto.response.GetInOutResponseDto;
 
-public interface InboundServiceIf {
+public interface InOutRecordServiceIf {
     List<GetInOutResponseDto> getAllInbounds(GetAllInOutRequestDto params);
 
     GetInOutResponseDto getInboundById(String id);

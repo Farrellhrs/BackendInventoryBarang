@@ -6,7 +6,7 @@ import java.util.List;
 import com.pbo.warehouse.api.dto.request.GetAllInOutRequestDto;
 import com.pbo.warehouse.api.models.InOutRecord;
 
-public interface InboundRepositoryIf {
+public interface InOutRecordRepositoryIf {
     int getTotalData(String productCategory);
 
     List<InOutRecord> getAllRecords(GetAllInOutRequestDto params);

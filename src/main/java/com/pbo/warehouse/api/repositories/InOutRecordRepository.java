@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.pbo.warehouse.api.dto.request.GetAllInOutRequestDto;
 import com.pbo.warehouse.api.models.InOutRecord;
-import com.pbo.warehouse.api.repositories.interfaces.InboundRepositoryIf;
+import com.pbo.warehouse.api.repositories.interfaces.InOutRecordRepositoryIf;
 
-public class InboundRepository implements InboundRepositoryIf {
+public class InOutRecordRepository implements InOutRecordRepositoryIf {
 
     @Override
     public int getTotalData(String productCategory) {
