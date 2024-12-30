@@ -1,6 +1,6 @@
 package com.pbo.warehouse.api.models;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class StockRecord extends Model {
     private int id;

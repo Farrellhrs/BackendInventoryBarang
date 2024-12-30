@@ -7,7 +7,7 @@ public class GetInOutResponseDto {
     private String skuCode;
     private String category;
     private int quantity;
-    private int stock;
+    private int currentStock;
     private int maxStock;
     private String entryDate;
     private CreatorResponseDto createdBy;
@@ -61,12 +61,12 @@ public class GetInOutResponseDto {
         this.quantity = quantity;
     }
 
-    public int getStock() {
-        return this.stock;
+    public int getCurrentStock() {
+        return this.currentStock;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
+    public void setCurrentStock(int stock) {
+        this.currentStock = stock;
     }
 
     public int getMaxStock() {
