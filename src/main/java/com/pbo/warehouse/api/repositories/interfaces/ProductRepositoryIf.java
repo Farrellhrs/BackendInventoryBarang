@@ -20,7 +20,11 @@ public interface ProductRepositoryIf {
 
     GetProductResponseDto getProductById(String id);
 
-    boolean insertProduct(Product product);
+    void insertProductElectronic(ProductElectronic product);
+
+    void insertProductCosmetic(ProductCosmetic product);
+
+    void insertProductFnb(ProductFnb product);
 
     boolean updateProduct(Product product);
 

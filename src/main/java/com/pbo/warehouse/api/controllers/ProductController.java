@@ -2,6 +2,9 @@ package com.pbo.warehouse.api.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import com.pbo.warehouse.api.controllers.interfaces.ProductControllerIf;
 import com.pbo.warehouse.api.dto.ResponseBodyDto;
@@ -15,6 +18,7 @@ import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
 import com.pbo.warehouse.api.services.ProductService;
+import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
 
 import spark.Request;
 import spark.Response;
@@ -130,8 +134,96 @@ public class ProductController implements ProductControllerIf {
 
     @Override
     public ResponseBodyDto addProduct(Request req, Response res) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addProduct'");
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
+        try {
+            String skuCode = req.queryParams("skuCode");
+            String name = req.queryParams("name");
+            String category = req.queryParams("category");
+            String maxStockStr = req.queryParams("maxStock");
+            String stockStr = req.queryParams("stock");
+
+            // Get createdBy from request attribute
+            String createdBy = req.attribute("email");
+
+            if (category == null || name == null || skuCode == null || maxStockStr == null || stockStr == null
+                    || createdBy == null) {
+                return responseBody.error(400, "Semua field wajib diisi", null);
+            }
+
+            int maxStock;
+            int stock;
+
+            try {
+                maxStock = Integer.parseInt(maxStockStr);
+                stock = Integer.parseInt(stockStr);
+            } catch (NumberFormatException e) {
+                return responseBody.error(400, "Stock dan maxStock harus berupa angka", null);
+            }
+
+            // Validasi kategori
+            List<String> validCategories = List.of("electronic", "cosmetic", "fnb");
+            if (!validCategories.contains(category)) {
+                return responseBody.error(400, "Kategori tidak valid", null);
+            }
+
+            String additionalField = null;
+            AddProductRequestDto product = new AddProductRequestDto();
+            AddProductRequestDto.ProductDetails productDetails = new AddProductRequestDto.ProductDetails();
+            // instansiasi product di luar if else, buat class detail product
+            if (category.equals("fnb")) {
+                additionalField = req.queryParams("expireDate");
+                if (additionalField == null) {
+                    return responseBody.error(400, "expireDate wajib untuk kategori fnb atau cosmetic", null);
+                }
+                Date expireDate;
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    expireDate = dateFormat.parse(additionalField);
+                    productDetails.setExpireDate(expireDate);
+                } catch (ParseException e) {
+                    return responseBody.error(400,
+                            "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
+                }
+            } else if (category.equals("electronic")) {
+                additionalField = req.queryParams("type");
+                if (additionalField == null) {
+                    return responseBody.error(400, "type wajib untuk kategori electronic", null);
+                }
+                productDetails.setType(additionalField);
+            } else if (category.equals("cosmetic")) {
+                additionalField = req.queryParams("expireDate");
+                if (additionalField == null) {
+                    return responseBody.error(400, "expireDate wajib untuk kategori fnb atau cosmetic", null);
+                }
+                Date expireDate;
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    expireDate = dateFormat.parse(additionalField);
+                    productDetails.setExpireDate(expireDate);
+                } catch (ParseException e) {
+                    return responseBody.error(400,
+                            "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
+                }
+            }
+
+            // Populate product DTO
+            product.setSkuCode(skuCode);
+            product.setName(name);
+            product.setCategory(category);
+            product.setMaxStock(maxStock);
+            product.setStock(stock);
+            product.setCreatedBy(createdBy);
+            product.setDetails(productDetails);
+
+            // Menyimpan produk ke database menggunakan service
+            productService.addProduct(product);
+
+            return responseBody.success(201, "Produk berhasil ditambahkan", gson.toJson(product));
+        } catch (AppException e) {
+            return responseBody.error(e.getStatusCode(), e.getMessage(), null);
+        } catch (Exception e) {
+            return responseBody.error(500, e.getMessage(), null);
+        }
     }
 
     @Override

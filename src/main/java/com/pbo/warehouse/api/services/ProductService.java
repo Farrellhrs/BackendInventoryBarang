@@ -2,15 +2,21 @@ package com.pbo.warehouse.api.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
 import com.pbo.warehouse.api.dto.response.PaginationResponse;
+import com.pbo.warehouse.api.exceptions.AppException;
+import com.pbo.warehouse.api.models.Product;
 import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
+import com.pbo.warehouse.api.models.User;
 import com.pbo.warehouse.api.repositories.ProductRepository;
+import com.pbo.warehouse.api.repositories.UserRepository;
 import com.pbo.warehouse.api.services.interfaces.ProductServiceIf;
 import com.pbo.warehouse.api.utils.PaginationUtil;
 
@@ -67,4 +73,59 @@ public class ProductService implements ProductServiceIf {
         GetProductResponseDto product = productRepository.getProductById(id);
         return product;
     }
+
+    @Override
+    public void addProduct(AddProductRequestDto product) {
+        UserRepository userRepository = new UserRepository();
+        User currentUser = userRepository.getUserByEmail(product.getCreatedBy());
+        if (currentUser == null) {
+            throw new AppException(400, "User tidak ditemukan");
+        }
+
+        // Generate id product
+        product.setId(UUID.randomUUID().toString());
+
+        // Insert product sesuai category
+        switch (product.getCategory()) {
+            case "electronic":
+                ProductElectronic productElectronic = new ProductElectronic();
+                productElectronic.setId(product.getId());
+                productElectronic.setName(product.getName());
+                productElectronic.setSkuCode(product.getSkuCode());
+                productElectronic.setCategory(product.getCategory());
+                productElectronic.setMaxStock(product.getMaxStock());
+                productElectronic.setCreatedBy(currentUser.getId());
+                productElectronic.setType(product.getDetails().getType());
+
+                productRepository.insertProductElectronic(productElectronic);
+                break;
+            case "cosmetic":
+                ProductCosmetic productCosmetic = new ProductCosmetic();
+                productCosmetic.setId(product.getId());
+                productCosmetic.setName(product.getName());
+                productCosmetic.setSkuCode(product.getSkuCode());
+                productCosmetic.setCategory(product.getCategory());
+                productCosmetic.setMaxStock(product.getMaxStock());
+                productCosmetic.setCreatedBy(currentUser.getId());
+                productCosmetic.setExpireDate(new java.sql.Date(product.getDetails().getExpireDate().getTime()));
+
+                productRepository.insertProductCosmetic(productCosmetic);
+                break;
+            case "fnb":
+                ProductFnb productFnb = new ProductFnb();
+                productFnb.setId(product.getId());
+                productFnb.setName(product.getName());
+                productFnb.setSkuCode(product.getSkuCode());
+                productFnb.setCategory(product.getCategory());
+                productFnb.setMaxStock(product.getMaxStock());
+                productFnb.setCreatedBy(currentUser.getId());
+                productFnb.setExpireDate(new java.sql.Date(product.getDetails().getExpireDate().getTime()));
+
+                productRepository.insertProductFnb(productFnb);
+                break;
+            default:
+                break;
+        }
+    }
+
 }
