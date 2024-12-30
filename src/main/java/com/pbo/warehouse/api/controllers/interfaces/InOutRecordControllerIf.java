@@ -3,13 +3,13 @@ package com.pbo.warehouse.api.controllers.interfaces;
 import com.pbo.warehouse.api.dto.ResponseBodyDto;
 
 public interface InOutRecordControllerIf extends ControllerIf {
-    ResponseBodyDto getAllInbounds(spark.Request req, spark.Response res);
+    ResponseBodyDto getAllRecords(spark.Request req, spark.Response res, String type);
 
-    ResponseBodyDto getInboundById(spark.Request req, spark.Response res);
+    ResponseBodyDto getRecordById(spark.Request req, spark.Response res);
 
-    ResponseBodyDto addInbound(spark.Request req, spark.Response res);
+    ResponseBodyDto addRecord(spark.Request req, spark.Response res, String type);
 
-    ResponseBodyDto updateInbound(spark.Request req, spark.Response res);
+    ResponseBodyDto updateRecord(spark.Request req, spark.Response res);
 
-    ResponseBodyDto deleteInbound(spark.Request req, spark.Response res);
+    ResponseBodyDto deleteRecord(spark.Request req, spark.Response res);
 }

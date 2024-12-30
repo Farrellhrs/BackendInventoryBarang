@@ -11,56 +11,56 @@ import com.pbo.warehouse.api.services.interfaces.InOutRecordServiceIf;
 public class InOutRecordService implements InOutRecordServiceIf {
 
     @Override
-    public List<GetInOutResponseDto> getAllInbounds(GetAllInOutRequestDto params) {
+    public List<GetInOutResponseDto> getAllRecords(GetAllInOutRequestDto params) {
         /*
          * TODO: implement this logics
-         * - get all inbounds (call InboundRepository.getAllRecords)
-         * - get total data (call InboundRepository.getTotalData)
+         * - get all Records (call InOutRecordRepository.getAllRecords)
+         * - get total data (call InOutRecordRepository.getTotalData)
          * - create pagination response (call PaginationUtil.createPaginationResponse)
          * - return GetAllInOutResponseDto
          * - throw AppException if there is an exception
          */
         
-        throw new UnsupportedOperationException("Unimplemented method 'getAllInbounds'");
+        throw new UnsupportedOperationException("Unimplemented method 'getAllRecords'");
     }
 
     @Override
-    public GetInOutResponseDto getInboundById(String id) {
+    public GetInOutResponseDto getRecordById(String id) {
         /*
          * TODO: implement this logics
-         * - get inbound by id (call InboundRepository.getRecordById)
+         * - get Record by id (call InOutRecordRepository.getRecordById)
          * - return GetInOutResponseDto
          * - throw AppException if there is an exception
          */
-        throw new UnsupportedOperationException("Unimplemented method 'getInboundById'");
+        throw new UnsupportedOperationException("Unimplemented method 'getRecordById'");
     }
 
     @Override
-    public void addInbound(AddInOutRequestDto inbound) {
+    public void addRecord(AddInOutRequestDto Record) {
         /*
          * TODO: implement this logics
-         * - get existing record by date and product id (call InboundRepository.getRecordByDateAndProductId)
-         * - if record exists, update the record (call InboundRepository.updateRecord)
-         * - else, insert new record (call InboundRepository.insertRecord)
+         * - get existing record by date and product id (call InOutRecordRepository.getRecordByDateAndProductId)
+         * - if record exists, update the record (call InOutRecordRepository.updateRecord)
+         * - else, insert new record (call InOutRecordRepository.insertRecord)
          * - throw AppException if there is an exception
          */
-        throw new UnsupportedOperationException("Unimplemented method 'addInbound'");
+        throw new UnsupportedOperationException("Unimplemented method 'addRecord'");
     }
 
     @Override
-    public void updateInbound(UpdateInOutRequestDto inbound) {
+    public void updateRecord(UpdateInOutRequestDto Record) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateInbound'");
+        throw new UnsupportedOperationException("Unimplemented method 'updateRecord'");
     }
 
     @Override
-    public void deleteInbound(String id) {
+    public void deleteRecord(String id) {
         /*
          * TODO: implement this logics
-         * - call InboundRepository.deleteRecord
+         * - call InOutRecordRepository.deleteRecord
          * - throw AppException if there is an exception
          */
-        throw new UnsupportedOperationException("Unimplemented method 'deleteInbound'");
+        throw new UnsupportedOperationException("Unimplemented method 'deleteRecord'");
     }
 
 }

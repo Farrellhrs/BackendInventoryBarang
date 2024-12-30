@@ -4,11 +4,13 @@ public class AddInOutRequestDto {
     private String productId;
     private int quantity;
     private String recordDate;
+    private String type;
 
-    public AddInOutRequestDto(String productId, int quantity, String recordDate) {
+    public AddInOutRequestDto(String productId, int quantity, String recordDate, String type) {
         this.productId = productId;
         this.quantity = quantity;
         this.recordDate = recordDate;
+        this.type = type;
     }
 
     public String getProductId() {
@@ -21,5 +23,9 @@ public class AddInOutRequestDto {
 
     public String getRecordDate() {
         return recordDate;
+    }
+
+    public String getType() {
+        return type;
     }
 }

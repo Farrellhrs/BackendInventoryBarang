@@ -8,13 +8,13 @@ import com.pbo.warehouse.api.dto.request.UpdateInOutRequestDto;
 import com.pbo.warehouse.api.dto.response.GetInOutResponseDto;
 
 public interface InOutRecordServiceIf {
-    List<GetInOutResponseDto> getAllInbounds(GetAllInOutRequestDto params);
+    List<GetInOutResponseDto> getAllRecords(GetAllInOutRequestDto params);
 
-    GetInOutResponseDto getInboundById(String id);
+    GetInOutResponseDto getRecordById(String id);
 
-    void addInbound(AddInOutRequestDto inbound);
+    void addRecord(AddInOutRequestDto record);
 
-    void updateInbound(UpdateInOutRequestDto inbound);
+    void updateRecord(UpdateInOutRequestDto record);
 
-    void deleteInbound(String id);
+    void deleteRecord(String id);
 }

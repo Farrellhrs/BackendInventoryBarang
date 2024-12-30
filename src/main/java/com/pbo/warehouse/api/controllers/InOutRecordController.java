@@ -9,7 +9,7 @@ import spark.Response;
 public class InOutRecordController implements InOutRecordControllerIf {
 
     @Override
-    public ResponseBodyDto getAllInbounds(Request req, Response res) {
+    public ResponseBodyDto getAllRecords(Request req, Response res, String type) {
         /*
          * TODO: implement this logics
          * - get request query params (page, limit, sort, order, category, startDate, endDate)
@@ -17,7 +17,7 @@ public class InOutRecordController implements InOutRecordControllerIf {
          * -    page, limit, sort, order: integer (optional)
          * -    category: string (optional) includes only 'electronic', 'cosmetic', 'fnb'
          * -    startDate, endDate: date format (yyyy-MM-dd) (optional)
-         * - call inbound service method to get all inbounds
+         * - call Record service method to get all Records
          * - return responses
          * -    200: success
          * -    400: bad request (invalid query params)
@@ -25,29 +25,29 @@ public class InOutRecordController implements InOutRecordControllerIf {
          * - response body: must include array of json (id, productId, skuCode, productName, category, quantity, recordDate)
          */
 
-        throw new UnsupportedOperationException("Unimplemented method 'getInbounds'");
+        throw new UnsupportedOperationException("Unimplemented method 'getRecords'");
     }
 
     @Override
-    public ResponseBodyDto getInboundById(Request req, Response res) {
+    public ResponseBodyDto getRecordById(Request req, Response res) {
         /*
          * TODO: implement this logics
          * - get request path params (id) (req.params("id"))
          * - validate path params (id cannot be null)
-         * - call inbound service method to get inbound by id
+         * - call Record service method to get Record by id
          * - return responses
          * -    200: success
          * -    400: bad request (invalid path params)
-         * -    404: not found (inbound not found)
+         * -    404: not found (Record not found)
          * -    500: internal server error (exception handling)
          * - response body: must include json (id, productId, skuCode, productName, category, quantity, recordDate, stock, maxStock, createdBy, details)
          */
         
-        throw new UnsupportedOperationException("Unimplemented method 'getInboundById'");
+        throw new UnsupportedOperationException("Unimplemented method 'getRecordById'");
     }
 
     @Override
-    public ResponseBodyDto addInbound(Request req, Response res) {
+    public ResponseBodyDto addRecord(Request req, Response res, String type) {
         /*
          * TODO: implement this logics
          * - get request body (productId, quantity, entryDate)
@@ -55,25 +55,25 @@ public class InOutRecordController implements InOutRecordControllerIf {
          * -    productId: string (required)
          * -    quantity: integer (required)
          * -    entryDate: date format (yyyy-MM-dd) (required)
-         * - call inbound service method to add inbound
+         * - call Record service method to add Record
          * - return responses
          * -    201: created
          * -    400: bad request (invalid request body)
          * -    500: internal server error (exception handling)
          */
-        throw new UnsupportedOperationException("Unimplemented method 'addInbound'");
+        throw new UnsupportedOperationException("Unimplemented method 'addRecord'");
     }
 
     @Override
-    public ResponseBodyDto updateInbound(Request req, Response res) {
+    public ResponseBodyDto updateRecord(Request req, Response res) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateInbound'");
+        throw new UnsupportedOperationException("Unimplemented method 'updateRecord'");
     }
 
     @Override
-    public ResponseBodyDto deleteInbound(Request req, Response res) {
+    public ResponseBodyDto deleteRecord(Request req, Response res) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteInbound'");
+        throw new UnsupportedOperationException("Unimplemented method 'deleteRecord'");
     }
 
 }
