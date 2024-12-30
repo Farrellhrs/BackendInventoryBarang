@@ -136,16 +136,17 @@ public class ProductController implements ProductControllerIf {
     public ResponseBodyDto addProduct(Request req, Response res) {
         final ResponseBodyDto responseBody = new ResponseBodyDto();
         try {
-            String subTableName = req.queryParams("subTableName");
-            String id = req.queryParams("id");
             String skuCode = req.queryParams("skuCode");
             String name = req.queryParams("name");
             String category = req.queryParams("category");
             String maxStockStr = req.queryParams("maxStock");
             String stockStr = req.queryParams("stock");
-            String createdBy = req.queryParams("createdBy");
 
-            if (category == null || name == null || skuCode == null || maxStockStr == null || stockStr == null || createdBy == null) {
+            // Get createdBy from request attribute
+            String createdBy = req.attribute("email");
+
+            if (category == null || name == null || skuCode == null || maxStockStr == null || stockStr == null
+                    || createdBy == null) {
                 return responseBody.error(400, "Semua field wajib diisi", null);
             }
 
@@ -180,7 +181,8 @@ public class ProductController implements ProductControllerIf {
                     expireDate = dateFormat.parse(additionalField);
                     productDetails.setExpireDate(expireDate);
                 } catch (ParseException e) {
-                    return responseBody.error(400, "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
+                    return responseBody.error(400,
+                            "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
                 }
             } else if (category.equals("electronic")) {
                 additionalField = req.queryParams("type");
@@ -188,7 +190,7 @@ public class ProductController implements ProductControllerIf {
                     return responseBody.error(400, "type wajib untuk kategori electronic", null);
                 }
                 productDetails.setType(additionalField);
-            } else if (category.equals("cosmetic")){
+            } else if (category.equals("cosmetic")) {
                 additionalField = req.queryParams("expireDate");
                 if (additionalField == null) {
                     return responseBody.error(400, "expireDate wajib untuk kategori fnb atau cosmetic", null);
@@ -199,7 +201,8 @@ public class ProductController implements ProductControllerIf {
                     expireDate = dateFormat.parse(additionalField);
                     productDetails.setExpireDate(expireDate);
                 } catch (ParseException e) {
-                    return responseBody.error(400, "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
+                    return responseBody.error(400,
+                            "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
                 }
             }
 
@@ -210,17 +213,17 @@ public class ProductController implements ProductControllerIf {
             product.setMaxStock(maxStock);
             product.setStock(stock);
             product.setCreatedBy(createdBy);
-            product.setAdditionalField(productDetails);
-            
+            product.setDetails(productDetails);
+
             // Menyimpan produk ke database menggunakan service
-            productService.addproduct(product);
+            productService.addProduct(product);
 
             return responseBody.success(201, "Produk berhasil ditambahkan", gson.toJson(product));
-            } catch (AppException e) {
-                return responseBody.error(e.getStatusCode(), e.getMessage(), null);
-            } catch (Exception e) {
-                return responseBody.error(500, e.getMessage(), null);
-            }
+        } catch (AppException e) {
+            return responseBody.error(e.getStatusCode(), e.getMessage(), null);
+        } catch (Exception e) {
+            return responseBody.error(500, e.getMessage(), null);
+        }
     }
 
     @Override

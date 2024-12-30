@@ -7,9 +7,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto.ProductDetails;
+import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.jbdc.DatabaseConnection;
 import com.pbo.warehouse.api.models.Product;
 import com.pbo.warehouse.api.models.ProductCosmetic;
@@ -353,23 +355,77 @@ public class ProductRepository implements ProductRepositoryIf {
     }
 
     @Override
-    public boolean insertProduct(Product product) {
-        String tableName = product.getSubTableName(); // Sub-table or base table logic
-        String sql = "INSERT INTO " + tableName + " (id, sku_code, name, category, max_stock, stock, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection connection = DatabaseConnection.connect()) {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, product.getId());
-            stmt.setString(2, product.getSkuCode());
-            stmt.setString(3, product.getName());
-            stmt.setString(4, product.getCategory());
-            stmt.setInt(5, product.getMaxStock());
-            stmt.setInt(6, product.getStock());
-            stmt.setString(7, product.getCreatedBy());
+    public void insertProductElectronic(ProductElectronic product) {
+        // Insert ke parent product
+        this.insertProduct(product);
 
-            return stmt.executeUpdate() > 0; // Returns true if the product was successfully inserted
+        // Insert ke child product
+        String query = "INSERT INTO " + product.getSubTableName()
+                + " (product_id, type) VALUES (?, ?)";
+
+        try (Connection connection = DatabaseConnection.connect();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, product.getId());
+            stmt.setString(2, product.getType());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal insert product");
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
+    }
+
+    @Override
+    public void insertProductCosmetic(ProductCosmetic product) {
+        // Insert ke parent product
+        this.insertProduct(product);
+
+        // Insert ke child product
+        String query = "INSERT INTO " + product.getSubTableName()
+                + " (product_id, expire_date) VALUES (?, ?)";
+
+        try (Connection connection = DatabaseConnection.connect();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, product.getId());
+            stmt.setDate(2, product.getExpireDate());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal insert product");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
+    }
+
+    @Override
+    public void insertProductFnb(ProductFnb product) {
+        // Insert ke parent product
+        this.insertProduct(product);
+
+        // Insert ke child product
+        String query = "INSERT INTO " + product.getSubTableName()
+                + " (product_id, expire_date) VALUES (?, ?)";
+
+        try (Connection connection = DatabaseConnection.connect();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, product.getId());
+            stmt.setDate(2, product.getExpireDate());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal insert product");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
         }
     }
 
@@ -425,4 +481,26 @@ public class ProductRepository implements ProductRepositoryIf {
         return totalData;
     }
 
+    private void insertProduct(Product product) {
+        String sql = "INSERT INTO products (id, sku_code, name, category, max_stock, stock, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, product.getId());
+            stmt.setString(2, product.getSkuCode());
+            stmt.setString(3, product.getName());
+            stmt.setString(4, product.getCategory());
+            stmt.setInt(5, product.getMaxStock());
+            stmt.setInt(6, product.getStock());
+            stmt.setString(7, product.getCreatedBy());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal insert product");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
+    }
 }

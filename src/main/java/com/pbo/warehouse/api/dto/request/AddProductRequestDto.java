@@ -3,16 +3,15 @@ package com.pbo.warehouse.api.dto.request;
 import java.util.Date;
 
 public class AddProductRequestDto {
+    private String id;
     private String skuCode;
     private String name;
     private String category;
     private int maxStock;
     private int stock;
     private String createdBy;
-    private Object additionalField; 
-    public AddProductRequestDto(){
-        
-    }
+    private ProductDetails details;
+
     public static class ProductDetails {
         // Electronic details
         private String type;
@@ -44,6 +43,15 @@ public class AddProductRequestDto {
             this.expireDate = expireDate;
         }
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getSkuCode() {
         return skuCode;
     }
@@ -92,11 +100,11 @@ public class AddProductRequestDto {
         this.createdBy = createdBy;
     }
 
-    public Object getAdditionalField() {
-        return additionalField;
+    public ProductDetails getDetails() {
+        return details;
     }
 
-    public void setAdditionalField(Object additionalField) {
-        this.additionalField = additionalField;
+    public void setDetails(ProductDetails details) {
+        this.details = details;
     }
 }
