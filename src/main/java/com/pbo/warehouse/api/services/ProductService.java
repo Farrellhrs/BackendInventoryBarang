@@ -145,6 +145,8 @@ public class ProductService implements ProductServiceIf {
             if (existingProduct == null) {
                 throw new AppException(404, "Produk tidak ditemukan");
             }
+
+            // TODO: tambah logic, jika category berubah, maka throw AppException dengan message "Kategori produk tidak boleh diubah" dan status code 400
     
             // Update fields
             existingProduct.setName(product.getName());

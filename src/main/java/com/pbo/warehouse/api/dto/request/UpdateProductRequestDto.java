@@ -1,6 +1,8 @@
 package com.pbo.warehouse.api.dto.request;
 
 public class UpdateProductRequestDto {
+    // TODO: field update product cuma id (dari params), name, category, maxStock, details (dari request body)
+    // TODO: hapus yg ga sesuai postman
     private String id;
     private String skuCode;
     private String name;
