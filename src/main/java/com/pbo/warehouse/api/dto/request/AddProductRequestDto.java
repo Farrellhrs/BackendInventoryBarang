@@ -8,7 +8,6 @@ public class AddProductRequestDto {
     private String name;
     private String category;
     private int maxStock;
-    private int stock;
     private String createdBy;
     private ProductDetails details;
 
@@ -17,12 +16,12 @@ public class AddProductRequestDto {
         private String type;
 
         // Cosmetic & Fnb details
-        private Date expireDate;
+        private String expireDate;
 
         public ProductDetails() {
         }
 
-        public ProductDetails(String type, Date expireDate) {
+        public ProductDetails(String type, String expireDate) {
             this.type = type;
             this.expireDate = expireDate;
         }
@@ -35,11 +34,11 @@ public class AddProductRequestDto {
             this.type = type;
         }
 
-        public Date getExpireDate() {
+        public String getExpireDate() {
             return expireDate;
         }
 
-        public void setExpireDate(Date expireDate) {
+        public void setExpireDate(String expireDate) {
             this.expireDate = expireDate;
         }
     }
@@ -82,14 +81,6 @@ public class AddProductRequestDto {
 
     public void setMaxStock(int maxStock) {
         this.maxStock = maxStock;
-    }
-
-    public int getStock() {
-        return stock;
-    }
-
-    public void setStock(int stock) {
-        this.stock = stock;
     }
 
     public String getCreatedBy() {

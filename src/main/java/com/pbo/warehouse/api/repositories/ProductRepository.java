@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
 import com.pbo.warehouse.api.dto.response.CreatorResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
@@ -482,7 +481,9 @@ public class ProductRepository implements ProductRepositoryIf {
     }
 
     private void insertProduct(Product product) {
-        String sql = "INSERT INTO products (id, sku_code, name, category, max_stock, stock, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO products (id, sku_code, name, category, max_stock, created_by) VALUES (?, ?, ?, ?, ?, ?)";
+
+        System.out.println("user id:" + product.getCreatedBy());
 
         try (Connection connection = DatabaseConnection.connect()) {
             PreparedStatement stmt = connection.prepareStatement(sql);
@@ -491,8 +492,7 @@ public class ProductRepository implements ProductRepositoryIf {
             stmt.setString(3, product.getName());
             stmt.setString(4, product.getCategory());
             stmt.setInt(5, product.getMaxStock());
-            stmt.setInt(6, product.getStock());
-            stmt.setString(7, product.getCreatedBy());
+            stmt.setString(6, product.getCreatedBy());
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {

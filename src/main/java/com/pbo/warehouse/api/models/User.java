@@ -31,6 +31,14 @@ public class User extends Model {
         this.password = password;
     }
 
+    public User(String id, String name, String email, String password) {
+        super("users");
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
     /**
      * @return the id
      */
@@ -38,7 +46,11 @@ public class User extends Model {
         return this.id;
     }
 
-    public void setId() {
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void generateId() {
         // generate uuid
         this.id = java.util.UUID.randomUUID().toString();
     }

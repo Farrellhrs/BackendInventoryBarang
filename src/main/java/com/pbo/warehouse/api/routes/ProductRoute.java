@@ -14,7 +14,6 @@ public class ProductRoute {
             AuthMiddleware.authenticate(req, res);
         });
         post("/api/product/add", (req, res) -> {
-            // TODO: implement this
             ResponseBodyDto response = productController.addProduct(req, res);
 
             res.type("application/json");

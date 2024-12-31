@@ -52,7 +52,7 @@ public class UserRepository implements UserRepositoryIf {
     public User getUserByEmail(String email) {
         User user = new User();
 
-        String query = "SELECT * FROM " + user.getTableName() + " WHERE email = ?";
+        String query = "SELECT id, name, email, password FROM " + user.getTableName() + " WHERE email = ?";
 
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -62,6 +62,7 @@ public class UserRepository implements UserRepositoryIf {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     user = new User(
+                            rs.getString("id"),
                             rs.getString("name"),
                             rs.getString("email"),
                             rs.getString("password"));
@@ -81,8 +82,6 @@ public class UserRepository implements UserRepositoryIf {
     @Override
     public boolean addUser(User user) {
         String query = "INSERT INTO " + user.getTableName() + " (id, name, email, password) VALUES (?, ?, ?, ?)";
-
-        user.setId();
 
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {

@@ -135,25 +135,18 @@ public class ProductController implements ProductControllerIf {
     public ResponseBodyDto addProduct(Request req, Response res) {
         final ResponseBodyDto responseBody = new ResponseBodyDto();
         try {
-            String skuCode = req.queryParams("skuCode");
-            String name = req.queryParams("name");
-            String category = req.queryParams("category");
-            String maxStockStr = req.queryParams("maxStock");
+            AddProductRequestDto reqBody = gson.fromJson(req.body(), AddProductRequestDto.class);
 
             // Get createdBy from request attribute
             String createdBy = req.attribute("email");
+            reqBody.setCreatedBy(createdBy);
 
-            if (category == null || name == null || skuCode == null || maxStockStr == null
-                    || createdBy == null) {
+            String category = reqBody.getCategory();
+
+            if (category == null || reqBody.getName() == null || reqBody.getSkuCode() == null
+                    || reqBody.getMaxStock() == 0 || reqBody.getCreatedBy() == null
+                    || reqBody.getDetails() == null) {
                 return responseBody.error(400, "Semua field wajib diisi", null);
-            }
-
-            int maxStock;
-
-            try {
-                maxStock = Integer.parseInt(maxStockStr);
-            } catch (NumberFormatException e) {
-                return responseBody.error(400, "Stock dan maxStock harus berupa angka", null);
             }
 
             // Validasi kategori
@@ -162,61 +155,34 @@ public class ProductController implements ProductControllerIf {
                 return responseBody.error(400, "Kategori tidak valid", null);
             }
 
-            String additionalField = null;
-            AddProductRequestDto product = new AddProductRequestDto();
-            AddProductRequestDto.ProductDetails productDetails = new AddProductRequestDto.ProductDetails();
-            // instansiasi product di luar if else, buat class detail product
-            if (category.equals("fnb")) {
-                additionalField = req.queryParams("expireDate");
-                if (additionalField == null) {
-                    return responseBody.error(400, "expireDate wajib untuk kategori fnb atau cosmetic", null);
+            AddProductRequestDto.ProductDetails details = reqBody.getDetails();
+            // Validasi details
+            if (category.equals("electronic")) {
+                if (details.getType() == null) {
+                    return responseBody.error(400, "Field detail type wajib diisi", null);
                 }
-                Date expireDate;
+            } else if (category.equals("cosmetic") || category.equals("fnb")) {
+                if (details.getExpireDate() == null) {
+                    return responseBody.error(400, "Field detail expiredDate wajib diisi", null);
+                }
+
                 try {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                    expireDate = dateFormat.parse(additionalField);
-                    productDetails.setExpireDate(expireDate);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    Date expiredDate = sdf.parse(details.getExpireDate());
+                    details.setExpireDate(sdf.format(expiredDate));
                 } catch (ParseException e) {
-                    return responseBody.error(400,
-                            "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
-                }
-            } else if (category.equals("electronic")) {
-                additionalField = req.queryParams("type");
-                if (additionalField == null) {
-                    return responseBody.error(400, "type wajib untuk kategori electronic", null);
-                }
-                productDetails.setType(additionalField);
-            } else if (category.equals("cosmetic")) {
-                additionalField = req.queryParams("expireDate");
-                if (additionalField == null) {
-                    return responseBody.error(400, "expireDate wajib untuk kategori fnb atau cosmetic", null);
-                }
-                Date expireDate;
-                try {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                    expireDate = dateFormat.parse(additionalField);
-                    productDetails.setExpireDate(expireDate);
-                } catch (ParseException e) {
-                    return responseBody.error(400,
-                            "Format tanggal tidak valid untuk expireDate. Gunakan format yyyy-MM-dd.", null);
+                    return responseBody.error(400, "Format tanggal expiredDate tidak yyyy-MM-dd", e.getMessage());
                 }
             }
 
-            // Populate product DTO
-            product.setSkuCode(skuCode);
-            product.setName(name);
-            product.setCategory(category);
-            product.setMaxStock(maxStock);
-            product.setCreatedBy(createdBy);
-            product.setDetails(productDetails);
-
             // Menyimpan produk ke database menggunakan service
-            productService.addProduct(product);
+            productService.addProduct(reqBody);
 
-            return responseBody.success(201, "Produk berhasil ditambahkan", gson.toJson(product));
+            return responseBody.success(201, "Produk berhasil ditambahkan", null);
         } catch (AppException e) {
             return responseBody.error(e.getStatusCode(), e.getMessage(), null);
         } catch (Exception e) {
+            System.err.println(e.getMessage());
             return responseBody.error(500, e.getMessage(), null);
         }
     }

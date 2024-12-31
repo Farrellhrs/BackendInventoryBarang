@@ -1,6 +1,9 @@
 package com.pbo.warehouse.api.services;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -85,6 +88,15 @@ public class ProductService implements ProductServiceIf {
         // Generate id product
         product.setId(UUID.randomUUID().toString());
 
+        Date expDate = new Date();
+        try {
+            if (product.getCategory().equals("cosmetic") || product.getCategory().equals("fnb")) {
+                expDate = new SimpleDateFormat("yyyy-MM-dd").parse(product.getDetails().getExpireDate());
+            }
+        } catch (ParseException e) {
+            throw new AppException(400, "Format tanggal kadaluarsa salah");
+        }
+
         // Insert product sesuai category
         switch (product.getCategory()) {
             case "electronic":
@@ -107,7 +119,7 @@ public class ProductService implements ProductServiceIf {
                 productCosmetic.setCategory(product.getCategory());
                 productCosmetic.setMaxStock(product.getMaxStock());
                 productCosmetic.setCreatedBy(currentUser.getId());
-                productCosmetic.setExpireDate(new java.sql.Date(product.getDetails().getExpireDate().getTime()));
+                productCosmetic.setExpireDate(new java.sql.Date(expDate.getTime()));
 
                 productRepository.insertProductCosmetic(productCosmetic);
                 break;
@@ -119,7 +131,7 @@ public class ProductService implements ProductServiceIf {
                 productFnb.setCategory(product.getCategory());
                 productFnb.setMaxStock(product.getMaxStock());
                 productFnb.setCreatedBy(currentUser.getId());
-                productFnb.setExpireDate(new java.sql.Date(product.getDetails().getExpireDate().getTime()));
+                productFnb.setExpireDate(new java.sql.Date(expDate.getTime()));
 
                 productRepository.insertProductFnb(productFnb);
                 break;

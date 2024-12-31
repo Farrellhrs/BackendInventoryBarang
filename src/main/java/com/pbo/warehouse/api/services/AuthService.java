@@ -44,6 +44,7 @@ public class AuthService implements AuthServiceIf {
         String hashedPassword = BCrypt.hashpw(data.getPassword(), BCrypt.gensalt());
 
         user.setPassword(hashedPassword);
+        user.generateId();
 
         if (!userRepository.addUser(user)) {
             throw new AppException(400, "Gagal menambahkan user");

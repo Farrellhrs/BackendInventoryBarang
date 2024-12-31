@@ -24,6 +24,10 @@ public class AuthMiddleware {
         }
 
         String email = JwtUtil.getClaims(token).getSubject();
+        if (email == null) {
+            haltWithJson(res, 401, "Unauthorized: Invalid token");
+        }
+
         req.attribute("email", email);
     }
 

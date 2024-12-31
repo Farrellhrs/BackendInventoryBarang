@@ -31,6 +31,10 @@ public abstract class Product extends Model {
         this.id = id;
     }
 
+    public void generateId() {
+        this.id = java.util.UUID.randomUUID().toString();
+    }
+
     public String getSkuCode() {
         return skuCode;
     }

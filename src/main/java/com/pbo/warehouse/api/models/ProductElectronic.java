@@ -3,6 +3,8 @@ package com.pbo.warehouse.api.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pbo.warehouse.api.utils.FormatUtil;
+
 public class ProductElectronic extends Product {
     private String type;
 
@@ -15,7 +17,7 @@ public class ProductElectronic extends Product {
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.type = FormatUtil.capitalizeFirstLetter(type);
     }
 
     public static List<String> toColumns() {
