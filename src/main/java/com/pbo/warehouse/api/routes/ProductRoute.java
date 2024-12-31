@@ -10,9 +10,16 @@ public class ProductRoute {
     private static ProductController productController = new ProductController();
 
     public static void init() {
+        before("/api/product/add", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         post("/api/product/add", (req, res) -> {
             // TODO: implement this
-            return "Hello World";
+            ResponseBodyDto response = productController.addProduct(req, res);
+
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
 
         /*

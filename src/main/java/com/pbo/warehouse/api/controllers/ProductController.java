@@ -139,22 +139,19 @@ public class ProductController implements ProductControllerIf {
             String name = req.queryParams("name");
             String category = req.queryParams("category");
             String maxStockStr = req.queryParams("maxStock");
-            String stockStr = req.queryParams("stock");
 
             // Get createdBy from request attribute
             String createdBy = req.attribute("email");
 
-            if (category == null || name == null || skuCode == null || maxStockStr == null || stockStr == null
+            if (category == null || name == null || skuCode == null || maxStockStr == null
                     || createdBy == null) {
                 return responseBody.error(400, "Semua field wajib diisi", null);
             }
 
             int maxStock;
-            int stock;
 
             try {
                 maxStock = Integer.parseInt(maxStockStr);
-                stock = Integer.parseInt(stockStr);
             } catch (NumberFormatException e) {
                 return responseBody.error(400, "Stock dan maxStock harus berupa angka", null);
             }
@@ -210,7 +207,6 @@ public class ProductController implements ProductControllerIf {
             product.setName(name);
             product.setCategory(category);
             product.setMaxStock(maxStock);
-            product.setStock(stock);
             product.setCreatedBy(createdBy);
             product.setDetails(productDetails);
 
