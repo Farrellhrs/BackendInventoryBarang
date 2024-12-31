@@ -53,7 +53,11 @@ public class ProductRoute {
 
         put("/api/product/update/:id", (req, res) -> {
             // TODO: implement this
-            return "Hello World";
+            ResponseBodyDto response = productController.updateProduct(req, res);
+
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
 
         delete("/api/product/delete/:id", (req, res) -> {

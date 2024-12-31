@@ -429,11 +429,81 @@ public class ProductRepository implements ProductRepositoryIf {
     }
 
     @Override
-    public boolean updateProduct(Product product) {
+    public void updateProductElectronic(ProductElectronic product) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateProduct'");
-    }
+        String query = "UPDATE Product SET name = ?, sku_code = ?, max_stock = ? WHERE id = ?;"
+            + "UPDATE ProductElectronic SET type = ? WHERE product_id = ?";
 
+        try (Connection connection = DatabaseConnection.connect();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, product.getName());
+            stmt.setString(2, product.getSkuCode());
+            stmt.setInt(3, product.getMaxStock());
+            stmt.setString(4, product.getId());
+            stmt.setString(5, product.getType());
+            stmt.setString(6, product.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal memperbarui produk elektronik");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
+    }
+    
+    @Override
+    public void updateProductFnB(ProductFnb product){
+        String query = "UPDATE products SET name = ?, sku_code = ?, max_stock = ? WHERE id = ?;"
+            + "UPDATE electronics SET type = ? WHERE product_id = ?";
+
+        try (Connection connection = DatabaseConnection.connect();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, product.getName());
+            stmt.setString(2, product.getSkuCode());
+            stmt.setInt(3, product.getMaxStock());
+            stmt.setString(4, product.getId());
+            stmt.setDate(5, product.getExpireDate());
+            stmt.setString(6, product.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal memperbarui produk elektronik");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
+    }
+    
+    @Override
+    public void updateProductCosmetic(ProductCosmetic product){
+        String query = "UPDATE products SET name = ?, sku_code = ?, max_stock = ? WHERE id = ?;"
+            + "UPDATE electronics SET type = ? WHERE product_id = ?";
+
+        try (Connection connection = DatabaseConnection.connect();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, product.getName());
+            stmt.setString(2, product.getSkuCode());
+            stmt.setInt(3, product.getMaxStock());
+            stmt.setString(4, product.getId());
+            stmt.setDate(5, product.getExpireDate());
+            stmt.setString(6, product.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal memperbarui produk elektronik");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
+    }
+    
     @Override
     public boolean deleteProduct(int id) {
         // TODO Auto-generated method stub
