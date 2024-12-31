@@ -11,7 +11,6 @@ import com.pbo.warehouse.api.dto.ResponseBodyDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
-import com.pbo.warehouse.api.dto.response.PaginationResponse;
 import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.models.Product;
 import com.pbo.warehouse.api.models.ProductCosmetic;

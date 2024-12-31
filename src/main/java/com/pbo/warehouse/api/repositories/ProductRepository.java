@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
+import com.pbo.warehouse.api.dto.response.CreatorResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto.ProductDetails;
 import com.pbo.warehouse.api.exceptions.AppException;
@@ -18,7 +19,6 @@ import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
 import com.pbo.warehouse.api.models.StockRecord;
-import com.pbo.warehouse.api.models.User;
 import com.pbo.warehouse.api.repositories.interfaces.ProductRepositoryIf;
 
 public class ProductRepository implements ProductRepositoryIf {
@@ -289,9 +289,9 @@ public class ProductRepository implements ProductRepositoryIf {
                             rs.getInt("max_stock"),
                             null);
 
-                    User user = new User();
-                    user.setName(rs.getString("user_name"));
-                    user.setEmail(rs.getString("email"));
+                    CreatorResponseDto user = new CreatorResponseDto(
+                            rs.getString("user_name"),
+                            rs.getString("email"));
 
                     product.setCreatedBy(user);
                 }

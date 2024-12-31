@@ -5,7 +5,6 @@ import java.util.Date;
 import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
-import com.pbo.warehouse.api.models.User;
 
 public class GetProductResponseDto {
     private String id;
@@ -15,7 +14,7 @@ public class GetProductResponseDto {
     private Date entryDate;
     private int stock;
     private int maxStock;
-    private User createdBy;
+    private CreatorResponseDto createdBy;
     private ProductDetails details;
 
     public static class ProductDetails {
@@ -93,11 +92,11 @@ public class GetProductResponseDto {
         return this.maxStock;
     }
 
-    public User getCreatedBy() {
+    public CreatorResponseDto getCreatedBy() {
         return this.createdBy;
     }
 
-    public void setCreatedBy(User user) {
+    public void setCreatedBy(CreatorResponseDto user) {
         this.createdBy = user;
     }
 
