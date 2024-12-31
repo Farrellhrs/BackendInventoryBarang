@@ -17,6 +17,10 @@ public class ProductElectronic extends Product {
     }
 
     public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setTypeCapitalized(String type) {
         this.type = FormatUtil.capitalizeFirstLetter(type);
     }
 

@@ -43,6 +43,9 @@ public class ProductRoute {
             return response.toJson();
         });
 
+        before("/api/product/find/:id", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         get("/api/product/find/:id", (req, res) -> {
             ResponseBodyDto response = productController.getProductById(req, res);
 
