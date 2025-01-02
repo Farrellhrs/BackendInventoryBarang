@@ -9,6 +9,7 @@ import java.util.Date;
 import com.pbo.warehouse.api.controllers.interfaces.ProductControllerIf;
 import com.pbo.warehouse.api.dto.ResponseBodyDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
+import com.pbo.warehouse.api.dto.request.UpdateProductRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
 import com.pbo.warehouse.api.exceptions.AppException;
@@ -190,8 +191,44 @@ public class ProductController implements ProductControllerIf {
     @Override
     public ResponseBodyDto updateProduct(Request req, Response res) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateProduct'");
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
+        
+        try {
+            UpdateProductRequestDto reqBody = gson.fromJson(req.body(), UpdateProductRequestDto.class);
+            String id = req.params("id");
+            UpdateProductRequestDto.ProductDetails details = reqBody.getDetails();
+            reqBody.setId(id);
+            // Validate details based on category
+            if (reqBody.getCategory().equals("electronic")) {
+                if (details.getType() == null) {
+                    return responseBody.error(400, "Field detail type wajib diisi untuk kategori electronic", null);
+                }
+            } else if (reqBody.getCategory().equals("cosmetic") || reqBody.getCategory().equals("fnb")) {
+                if (details.getExpireDate() == null) {
+                    return responseBody.error(400, "Field detail expiredDate wajib diisi untuk kategori ini", null);
+                }
+
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    Date expireDate = sdf.parse(details.getExpireDate());
+                    details.setExpireDate(sdf.format(expireDate));
+                } catch (ParseException e) {
+                    return responseBody.error(400, "Format tanggal expiredDate tidak sesuai yyyy-MM-dd", e.getMessage());
+                }
+            }
+
+            // Update product in the database via service
+            productService.updateProduct(reqBody);
+
+            return responseBody.success(200, "Produk berhasil diperbarui", null);
+        } catch (AppException e) {
+            return responseBody.error(e.getStatusCode(), e.getMessage(), null);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return responseBody.error(500, "Terjadi kesalahan pada server", null);
+        }
     }
+
 
     @Override
     public ResponseBodyDto deleteProduct(Request req, Response res) {

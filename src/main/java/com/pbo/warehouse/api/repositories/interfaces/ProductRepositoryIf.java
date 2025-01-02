@@ -26,7 +26,9 @@ public interface ProductRepositoryIf {
 
     void insertProductFnb(ProductFnb product);
 
-    boolean updateProduct(Product product);
-
     boolean deleteProduct(int id);
+    void updateProductElectronic(ProductElectronic product);
+    void updateProductFnB(ProductFnb product);
+    void updateProductCosmetic(ProductCosmetic product);
+    void updateProduct(Product product);
 }
