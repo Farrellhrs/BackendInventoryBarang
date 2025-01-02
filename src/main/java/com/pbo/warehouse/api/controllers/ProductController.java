@@ -195,9 +195,9 @@ public class ProductController implements ProductControllerIf {
         
         try {
             UpdateProductRequestDto reqBody = gson.fromJson(req.body(), UpdateProductRequestDto.class);
-
+            String id = req.params("id");
             UpdateProductRequestDto.ProductDetails details = reqBody.getDetails();
-
+            reqBody.setId(id);
             // Validate details based on category
             if (reqBody.getCategory().equals("electronic")) {
                 if (details.getType() == null) {

@@ -140,30 +140,40 @@ public class ProductService implements ProductServiceIf {
         }
     }
     public void updateProduct(UpdateProductRequestDto product){
+        System.out.println("update product" + product.getId());
             GetProductResponseDto existingProduct = productRepository.getProductById(product.getId());
             if (existingProduct == null) {
                 throw new AppException(404, "Produk tidak ditemukan");
             }
-
+System.out.println("logic valid category");
             // TODO: tambah logic, jika category berubah, maka throw AppException dengan message "Kategori produk tidak boleh diubah" dan status code 400
             if (!existingProduct.getCategory().equalsIgnoreCase(product.getCategory())) {
                 throw new AppException(400, "Kategori produk tidak boleh diubah");
             }
             // Update fields
             existingProduct.setName(product.getName());
+            System.out.println("nama product" + existingProduct.getProductName());
             existingProduct.setMaxStock(product.getMaxStock());
     
             // Update based on category
             switch (existingProduct.getCategory()) {
                 case "electronic":
+                System.out.println("electronic");
                     ProductElectronic updatedElectronic = new ProductElectronic();
+                    
                     updatedElectronic.setId(existingProduct.getId());
                     updatedElectronic.setName(existingProduct.getProductName());
                     updatedElectronic.setSkuCode(existingProduct.getSkuCode());
                     updatedElectronic.setCategory(existingProduct.getCategory());
                     updatedElectronic.setMaxStock(existingProduct.getMaxStock());
-                    updatedElectronic.setType(existingProduct.getDetails().getType());
-                    productRepository.updateProductElectronic(updatedElectronic);
+                    updatedElectronic.setType(product.getDetails().getType());
+                    try {
+                        productRepository.updateProductElectronic(updatedElectronic);
+                        productRepository.updateProduct(updatedElectronic);
+                    } catch (AppException e) {
+                        System.out.println(e.getMessage());
+                        throw new AppException(e.getStatusCode(), e.getMessage());
+                    }
                     break;
                 case "cosmetic":
                     ProductCosmetic updatedCosmetic = new ProductCosmetic();
@@ -183,6 +193,7 @@ public class ProductService implements ProductServiceIf {
                         e.printStackTrace();
                     } // java.util.Date
                     productRepository.updateProductCosmetic(updatedCosmetic);
+                    productRepository.updateProduct(updatedCosmetic);
                     break;
                 case "fnb":
                     ProductFnb updatedFnb = new ProductFnb();
@@ -202,9 +213,12 @@ public class ProductService implements ProductServiceIf {
                         e.printStackTrace();
                     } // java.util.Date
                     productRepository.updateProductFnB(updatedFnb);
+                    productRepository.updateProduct(updatedFnb);
                     break;
                 default:
                     throw new AppException(400, "Kategori produk tidak valid");
             }
+
+            System.out.println("finish service");
         }
 }

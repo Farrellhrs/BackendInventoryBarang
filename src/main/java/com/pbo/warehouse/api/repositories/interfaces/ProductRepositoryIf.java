@@ -30,4 +30,5 @@ public interface ProductRepositoryIf {
     void updateProductElectronic(ProductElectronic product);
     void updateProductFnB(ProductFnb product);
     void updateProductCosmetic(ProductCosmetic product);
+    void updateProduct(Product product);
 }
