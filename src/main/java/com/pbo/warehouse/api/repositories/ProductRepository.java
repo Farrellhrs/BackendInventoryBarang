@@ -432,8 +432,8 @@ public class ProductRepository implements ProductRepositoryIf {
     @Override
     public void updateProductElectronic(ProductElectronic product) {
         // TODO: nama table di query salah, jgn hardcode, pake method product.getSubTableName()
-        String query = "UPDATE Product SET name = ?, sku_code = ?, max_stock = ? WHERE id = ?;"
-            + "UPDATE ProductElectronic SET type = ? WHERE product_id = ?";
+        String query = "UPDATE products SET name = ?, sku_code = ?, max_stock = ? WHERE id = ?;"
+            + "UPDATE product_electronic SET type = ? WHERE product_id = ?";
 
         try (Connection connection = DatabaseConnection.connect();
             PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -459,7 +459,7 @@ public class ProductRepository implements ProductRepositoryIf {
     @Override
     public void updateProductFnB(ProductFnb product){
         String query = "UPDATE products SET name = ?, sku_code = ?, max_stock = ? WHERE id = ?;"
-            + "UPDATE electronics SET type = ? WHERE product_id = ?";
+            + "UPDATE product_fnbs SET type = ? WHERE product_id = ?";
 
         try (Connection connection = DatabaseConnection.connect();
             PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -485,7 +485,7 @@ public class ProductRepository implements ProductRepositoryIf {
     @Override
     public void updateProductCosmetic(ProductCosmetic product){
         String query = "UPDATE products SET name = ?, sku_code = ?, max_stock = ? WHERE id = ?;"
-            + "UPDATE electronics SET type = ? WHERE product_id = ?";
+            + "UPDATE product_cosmetic SET type = ? WHERE product_id = ?";
 
         try (Connection connection = DatabaseConnection.connect();
             PreparedStatement stmt = connection.prepareStatement(query)) {

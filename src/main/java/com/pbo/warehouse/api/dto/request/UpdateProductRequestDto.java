@@ -1,14 +1,12 @@
 package com.pbo.warehouse.api.dto.request;
 
 public class UpdateProductRequestDto {
-    // TODO: field update product cuma id (dari params), name, category, maxStock, details (dari request body)
-    // TODO: hapus yg ga sesuai postman
+    // TODO: field update product cuma id (dari params), name, category, maxStock, details (dari request body) (done)
+    // TODO: hapus yg ga sesuai postman (done)
     private String id;
-    private String skuCode;
     private String name;
     private String category;
     private int maxStock;
-    private String createdBy;
     private ProductDetails details;
 
     public static class ProductDetails {
@@ -51,14 +49,6 @@ public class UpdateProductRequestDto {
         this.id = id;
     }
 
-    public String getSkuCode() {
-        return skuCode;
-    }
-
-    public void setSkuCode(String skuCode) {
-        this.skuCode = skuCode;
-    }
-
     public String getName() {
         return name;
     }
@@ -81,14 +71,6 @@ public class UpdateProductRequestDto {
 
     public void setMaxStock(int maxStock) {
         this.maxStock = maxStock;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public ProductDetails getDetails() {

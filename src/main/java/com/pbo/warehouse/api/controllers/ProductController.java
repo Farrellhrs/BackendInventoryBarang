@@ -192,6 +192,7 @@ public class ProductController implements ProductControllerIf {
     public ResponseBodyDto updateProduct(Request req, Response res) {
         // TODO Auto-generated method stub
         final ResponseBodyDto responseBody = new ResponseBodyDto();
+        
         try {
             UpdateProductRequestDto reqBody = gson.fromJson(req.body(), UpdateProductRequestDto.class);
 

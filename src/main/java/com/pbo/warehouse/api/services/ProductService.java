@@ -147,10 +147,11 @@ public class ProductService implements ProductServiceIf {
             }
 
             // TODO: tambah logic, jika category berubah, maka throw AppException dengan message "Kategori produk tidak boleh diubah" dan status code 400
-    
+            if (!existingProduct.getCategory().equalsIgnoreCase(product.getCategory())) {
+                throw new AppException(400, "Kategori produk tidak boleh diubah");
+            }
             // Update fields
             existingProduct.setName(product.getName());
-            existingProduct.setSkuCode(product.getSkuCode());
             existingProduct.setMaxStock(product.getMaxStock());
     
             // Update based on category
@@ -167,11 +168,11 @@ public class ProductService implements ProductServiceIf {
                     break;
                 case "cosmetic":
                     ProductCosmetic updatedCosmetic = new ProductCosmetic();
-                    updatedCosmetic.setId(product.getId());
-                    updatedCosmetic.setName(product.getName());
-                    updatedCosmetic.setSkuCode(product.getSkuCode());
-                    updatedCosmetic.setCategory(product.getCategory());
-                    updatedCosmetic.setMaxStock(product.getMaxStock());
+                    updatedCosmetic.setId(existingProduct.getId());
+                    updatedCosmetic.setName(existingProduct.getProductName());
+                    updatedCosmetic.setSkuCode(existingProduct.getSkuCode());
+                    updatedCosmetic.setCategory(existingProduct.getCategory());
+                    updatedCosmetic.setMaxStock(existingProduct.getMaxStock());
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     Date utilDate;
                     try {
@@ -186,11 +187,11 @@ public class ProductService implements ProductServiceIf {
                     break;
                 case "fnb":
                     ProductFnb updatedFnb = new ProductFnb();
-                    updatedFnb.setId(product.getId());
-                    updatedFnb.setName(product.getName());
-                    updatedFnb.setSkuCode(product.getSkuCode());
-                    updatedFnb.setCategory(product.getCategory());
-                    updatedFnb.setMaxStock(product.getMaxStock());
+                    updatedFnb.setId(existingProduct.getId());
+                    updatedFnb.setName(existingProduct.getProductName());
+                    updatedFnb.setSkuCode(existingProduct.getSkuCode());
+                    updatedFnb.setCategory(existingProduct.getCategory());
+                    updatedFnb.setMaxStock(existingProduct.getMaxStock());
                     SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
                     Date utilDate2;
                     try {
