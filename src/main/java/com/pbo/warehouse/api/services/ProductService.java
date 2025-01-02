@@ -14,7 +14,6 @@ import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
 import com.pbo.warehouse.api.dto.response.PaginationResponse;
 import com.pbo.warehouse.api.exceptions.AppException;
-import com.pbo.warehouse.api.models.Product;
 import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
@@ -108,7 +107,7 @@ public class ProductService implements ProductServiceIf {
                 productElectronic.setCategory(product.getCategory());
                 productElectronic.setMaxStock(product.getMaxStock());
                 productElectronic.setCreatedBy(currentUser.getId());
-                productElectronic.setType(product.getDetails().getType());
+                productElectronic.setTypeCapitalized(product.getDetails().getType());
 
                 productRepository.insertProductElectronic(productElectronic);
                 break;
