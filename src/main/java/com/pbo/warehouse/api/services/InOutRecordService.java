@@ -89,7 +89,9 @@ public class InOutRecordService implements InOutRecordServiceIf {
     public void updateRecord(UpdateInOutRequestDto record) {
         try {
             // Check if the record exists
-            InOutRecord existingRecord = InOutRecordRepository.getRecordById(record.getCurrentProductId());
+            String productIdString = record.getCurrentProductId();
+            int currentProductId = Integer.parseInt(productIdString);
+            InOutRecord existingRecord = InOutRecordRepository.getRecordById(currentProductId);
             if (existingRecord == null) {
                 throw new AppException(404, "Record not found");
             }
