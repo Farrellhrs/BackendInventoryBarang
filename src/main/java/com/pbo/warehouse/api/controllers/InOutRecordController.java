@@ -8,6 +8,7 @@ import com.pbo.warehouse.api.controllers.interfaces.InOutRecordControllerIf;
 import com.pbo.warehouse.api.dto.ResponseBodyDto;
 import com.pbo.warehouse.api.dto.request.AddInOutRequestDto;
 import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
+import com.pbo.warehouse.api.dto.request.UpdateInOutRequestDto;
 import com.pbo.warehouse.api.services.InOutRecordService;
 import com.pbo.warehouse.api.services.ProductService;
 
@@ -126,8 +127,42 @@ public class InOutRecordController implements InOutRecordControllerIf {
 
     @Override
     public ResponseBodyDto updateRecord(Request req, Response res) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateRecord'");
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
+        try {
+            // Parse request path param (id)
+            String recordId = req.params(":id");
+            if (recordId == null || recordId.isEmpty()) {
+                res.status(400);
+                return responseBody.error(400, "Bad Request: 'id' is required", null);
+            }
+
+            // Parse request body
+            UpdateInOutRequestDto requestDto = gson.fromJson(req.body(), UpdateInOutRequestDto.class);
+
+            // Validate request body
+            if (requestDto.getCurrentProductId() == null || requestDto.getCurrentProductId().isEmpty()) {
+                res.status(400);
+                return responseBody.error(400, "Bad Request: 'productId' is required", null);
+            }
+            if (requestDto.getQuantity() <= 0) {
+                res.status(400);
+                return responseBody.error(400, "Bad Request: 'quantity' must be greater than 0", null);
+            }
+
+            // Call service to update record
+            InOutRecordService.updateRecord(requestDto);
+
+            // Return success response
+            res.status(200);
+            return responseBody.success(200, "Record updated successfully", null);
+
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return responseBody.error(400, "Bad Request: " + e.getMessage(), null);
+        } catch (Exception e) {
+            res.status(500);
+            return responseBody.error(500, "Internal Server Error: " + e.getMessage(), null);
+        }
     }
 
     @Override

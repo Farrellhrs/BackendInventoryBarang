@@ -86,9 +86,27 @@ public class InOutRecordService implements InOutRecordServiceIf {
     }
 
     @Override
-    public void updateRecord(UpdateInOutRequestDto Record) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateRecord'");
+    public void updateRecord(UpdateInOutRequestDto record) {
+        try {
+            // Check if the record exists
+            InOutRecord existingRecord = InOutRecordRepository.getRecordById(record.getCurrentProductId());
+            if (existingRecord == null) {
+                throw new AppException(404, "Record not found");
+            }
+
+            // Update record details
+            existingRecord.setProductId(record.getNewProductId());
+            existingRecord.setQuantity(record.getQuantity());
+            existingRecord.setRecordDate(new SimpleDateFormat("yyyy-MM-dd").parse(record.getRecordDate()));
+
+            // Call repository to update record in database
+            InOutRecordRepository.updateRecord(existingRecord);
+
+        } catch (ParseException e) {
+            throw new AppException(400, "Invalid date format. Expected yyyy-MM-dd");
+        } catch (Exception e) {
+            throw new AppException(500, "An error occurred while updating the record: " + e.getMessage());
+        }
     }
 
     @Override
