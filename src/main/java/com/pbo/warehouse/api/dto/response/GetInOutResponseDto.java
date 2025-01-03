@@ -1,5 +1,9 @@
 package com.pbo.warehouse.api.dto.response;
 
+import java.util.Date;
+
+import com.pbo.warehouse.api.models.InOutRecord;
+
 public class GetInOutResponseDto {
     private int id;
     private String productId;
@@ -9,9 +13,27 @@ public class GetInOutResponseDto {
     private int quantity;
     private int currentStock;
     private int maxStock;
-    private String entryDate;
+    private Date entryDate;
     private CreatorResponseDto createdBy;
     private ProductDetailsResponseDto details;
+
+    public GetInOutResponseDto() {
+
+    }
+
+    public GetInOutResponseDto(int id, String productId, String productName, String skuCode, String category, int quantity,
+            int currentStock, int maxStock, Date entryDate, ProductDetailsResponseDto details) {
+        this.id = id;
+        this.productId = productId;
+        this.productName = productName;
+        this.skuCode = skuCode;
+        this.category = category;
+        this.quantity = quantity;
+        this.currentStock = currentStock;
+        this.maxStock = maxStock;
+        this.entryDate = entryDate;
+        this.details = details;
+    }
 
     public int getId() {
         return this.id;
@@ -77,11 +99,11 @@ public class GetInOutResponseDto {
         this.maxStock = maxStock;
     }
 
-    public String getEntryDate() {
+    public Date getEntryDate() {
         return this.entryDate;
     }
 
-    public void setEntryDate(String entryDate) {
+    public void setEntryDate(Date entryDate) {
         this.entryDate = entryDate;
     }
 
@@ -99,5 +121,47 @@ public class GetInOutResponseDto {
 
     public void setDetails(ProductDetailsResponseDto details) {
         this.details = details;
+    }
+
+    public static GetInOutResponseDto fromEntityElectronic(InOutRecord inout) {
+        return new GetInOutResponseDto(
+                inout.getId(),
+                inout.getProductId(),
+                inout.getProductElectronic().getName(),
+                inout.getProductElectronic().getSkuCode(),
+                inout.getProductElectronic().getCategory(),
+                inout.getQuantity(),
+                inout.getProductElectronic().getStock(),
+                inout.getProductElectronic().getMaxStock(),
+                inout.getCreatedAt(),
+                new ProductDetailsResponseDto(inout.getProductElectronic().getType(), null));
+    }
+
+    public static GetInOutResponseDto fromEntityFnb(InOutRecord inout) {
+        return new GetInOutResponseDto(
+            inout.getId(),
+            inout.getProductId(),
+            inout.getProductFnb().getName(),
+            inout.getProductFnb().getSkuCode(),
+            inout.getProductFnb().getCategory(),
+            inout.getQuantity(),
+            inout.getProductFnb().getStock(),
+            inout.getProductFnb().getMaxStock(),
+            inout.getCreatedAt(),
+            new ProductDetailsResponseDto(null, inout.getProductFnb().getExpireDate()));
+    }
+
+    public static GetInOutResponseDto fromEntityCosmetic(InOutRecord inout) {
+        return new GetInOutResponseDto(
+            inout.getId(),
+            inout.getProductId(),
+            inout.getProductCosmetic().getName(),
+            inout.getProductCosmetic().getSkuCode(),
+            inout.getProductCosmetic().getCategory(),
+            inout.getQuantity(),
+            inout.getProductCosmetic().getStock(),
+            inout.getProductCosmetic().getMaxStock(),
+            inout.getCreatedAt(),
+            new ProductDetailsResponseDto(null, inout.getProductCosmetic().getExpireDate()));
     }
 }

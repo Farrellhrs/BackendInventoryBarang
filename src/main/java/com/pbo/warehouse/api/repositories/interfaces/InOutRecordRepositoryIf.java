@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.util.List;
 
 import com.pbo.warehouse.api.dto.request.GetAllInOutRequestDto;
+import com.pbo.warehouse.api.dto.response.GetInOutResponseDto;
 import com.pbo.warehouse.api.models.InOutRecord;
 
 public interface InOutRecordRepositoryIf {
@@ -11,7 +12,7 @@ public interface InOutRecordRepositoryIf {
 
     List<InOutRecord> getAllRecords(GetAllInOutRequestDto params);
 
-    InOutRecord getRecordById(int id);
+    GetInOutResponseDto getRecordById(int id);
 
     InOutRecord getRecordByDateAndProductId(Date date, String productId);
 
