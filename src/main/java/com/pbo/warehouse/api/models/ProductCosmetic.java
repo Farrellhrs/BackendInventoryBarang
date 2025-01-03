@@ -4,7 +4,9 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductCosmetic extends Product {
+import com.pbo.warehouse.api.models.interfaces.ProductExpireable;
+
+public class ProductCosmetic extends Product implements ProductExpireable {
     private Date expireDate;
 
     public ProductCosmetic() {
@@ -24,5 +26,11 @@ public class ProductCosmetic extends Product {
         columns.add("expire_date");
 
         return columns;
+    }
+
+    @Override
+    public int getDaysBeforeExpire() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getDaysBeforeExpire'");
     }
 }

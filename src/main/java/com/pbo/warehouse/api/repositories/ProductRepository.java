@@ -428,10 +428,95 @@ public class ProductRepository implements ProductRepositoryIf {
         }
     }
 
+    // TODO: Masukin method ini ke interface
     @Override
-    public boolean updateProduct(Product product) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateProduct'");
+    public void updateProductElectronic(ProductElectronic product) {
+
+        // TODO: nama table di query salah, jgn hardcode, pake method product.getSubTableName()
+        String query = "UPDATE product_electronics SET type = ? WHERE product_id = ?;";
+System.out.println(query);
+        try (Connection connection = DatabaseConnection.connect();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+
+                System.out.println(product.getType() + " " + product.getId());
+            stmt.setString(1, product.getType());
+            stmt.setString(2, product.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            System.out.println("execute query");
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal memperbarui produk elektronik");
+            }
+            System.out.println("finish");
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
+    }
+    
+    // TODO: Masukin method ini ke interface
+    @Override
+    public void updateProductFnB(ProductFnb product){
+        String query = "UPDATE product_fnbs SET expire_date = ? WHERE product_id = ?";
+
+        try (Connection connection = DatabaseConnection.connect();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setDate(1, product.getExpireDate());
+            stmt.setString(2, product.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal memperbarui produk elektronik");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
+    }
+    
+    // TODO: Masukin method ini ke interface    
+    @Override
+    public void updateProductCosmetic(ProductCosmetic product){
+        String query = "UPDATE product_cosmetics SET expire_date = ? WHERE product_id = ?";
+
+        try (Connection connection = DatabaseConnection.connect();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setDate(1, product.getExpireDate());
+            stmt.setString(2, product.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal memperbarui produk elektronik");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
+    }
+    
+    @Override
+    public void updateProduct(Product product){
+        System.out.println("start update product parent");
+        String query = "UPDATE products SET name = ? WHERE id = ?;";
+        System.out.println(query);
+        try (Connection connection = DatabaseConnection.connect();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, product.getName());
+            stmt.setString(2, product.getId());
+            System.out.println(product.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            System.out.println("execute products");
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal memperbarui produk elektronik");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
+import com.pbo.warehouse.api.dto.request.UpdateProductRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
 import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
 import com.pbo.warehouse.api.dto.response.PaginationResponse;
@@ -138,7 +139,88 @@ public class ProductService implements ProductServiceIf {
                 break;
         }
     }
+    public void updateProduct(UpdateProductRequestDto product){
+        System.out.println("update product" + product.getId());
+            GetProductResponseDto existingProduct = productRepository.getProductById(product.getId());
+            if (existingProduct == null) {
+                throw new AppException(404, "Produk tidak ditemukan");
+            }
+System.out.println("logic valid category");
+            // TODO: tambah logic, jika category berubah, maka throw AppException dengan message "Kategori produk tidak boleh diubah" dan status code 400
+            if (!existingProduct.getCategory().equalsIgnoreCase(product.getCategory())) {
+                throw new AppException(400, "Kategori produk tidak boleh diubah");
+            }
+            // Update fields
+            existingProduct.setName(product.getName());
+            System.out.println("nama product" + existingProduct.getProductName());
+            existingProduct.setMaxStock(product.getMaxStock());
+    
+            // Update based on category
+            switch (existingProduct.getCategory()) {
+                case "electronic":
+                System.out.println("electronic");
+                    ProductElectronic updatedElectronic = new ProductElectronic();
+                    
+                    updatedElectronic.setId(existingProduct.getId());
+                    updatedElectronic.setName(existingProduct.getProductName());
+                    updatedElectronic.setSkuCode(existingProduct.getSkuCode());
+                    updatedElectronic.setCategory(existingProduct.getCategory());
+                    updatedElectronic.setMaxStock(existingProduct.getMaxStock());
+                    updatedElectronic.setType(product.getDetails().getType());
+                    try {
+                        productRepository.updateProductElectronic(updatedElectronic);
+                        productRepository.updateProduct(updatedElectronic);
+                    } catch (AppException e) {
+                        System.out.println(e.getMessage());
+                        throw new AppException(e.getStatusCode(), e.getMessage());
+                    }
+                    break;
+                case "cosmetic":
+                    ProductCosmetic updatedCosmetic = new ProductCosmetic();
+                    updatedCosmetic.setId(existingProduct.getId());
+                    updatedCosmetic.setName(existingProduct.getProductName());
+                    updatedCosmetic.setSkuCode(existingProduct.getSkuCode());
+                    updatedCosmetic.setCategory(existingProduct.getCategory());
+                    updatedCosmetic.setMaxStock(existingProduct.getMaxStock());
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    Date utilDate;
+                    try {
+                        utilDate = sdf.parse(product.getDetails().getExpireDate());
+                        java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime()); // Convert to java.sql.Date
+                        updatedCosmetic.setExpireDate(sqlDate); // Pass the java.sql.Date
+                    } catch (ParseException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } // java.util.Date
+                    productRepository.updateProductCosmetic(updatedCosmetic);
+                    productRepository.updateProduct(updatedCosmetic);
+                    break;
+                case "fnb":
+                    ProductFnb updatedFnb = new ProductFnb();
+                    updatedFnb.setId(existingProduct.getId());
+                    updatedFnb.setName(existingProduct.getProductName());
+                    updatedFnb.setSkuCode(existingProduct.getSkuCode());
+                    updatedFnb.setCategory(existingProduct.getCategory());
+                    updatedFnb.setMaxStock(existingProduct.getMaxStock());
+                    SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+                    Date utilDate2;
+                    try {
+                        utilDate2 = sdf2.parse(product.getDetails().getExpireDate());
+                        java.sql.Date sqlDate2 = new java.sql.Date(utilDate2.getTime()); // Convert to java.sql.Date
+                        updatedFnb.setExpireDate(sqlDate2); // Pass the java.sql.Date
+                    } catch (ParseException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } // java.util.Date
+                    productRepository.updateProductFnB(updatedFnb);
+                    productRepository.updateProduct(updatedFnb);
+                    break;
+                default:
+                    throw new AppException(400, "Kategori produk tidak valid");
+            }
 
+            System.out.println("finish service");
+        }
     @Override
     public void deleteProduct(String id, String category) {
         if (id == null || id.isEmpty()) {
@@ -163,5 +245,4 @@ public class ProductService implements ProductServiceIf {
                 throw new AppException(400, "Kategori produk tidak valid");
         }
     }
-
 }
