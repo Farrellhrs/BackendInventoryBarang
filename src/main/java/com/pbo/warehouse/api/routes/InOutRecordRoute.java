@@ -2,7 +2,13 @@ package com.pbo.warehouse.api.routes;
 
 import static spark.Spark.*;
 
+import com.pbo.warehouse.api.controllers.InOutRecordController;
+import com.pbo.warehouse.api.controllers.ProductController;
+import com.pbo.warehouse.api.dto.ResponseBodyDto;
+import com.pbo.warehouse.api.middleware.AuthMiddleware;
+
 public class InOutRecordRoute {
+    private static InOutRecordController InOutRecordController = new InOutRecordController();
     public static void init() {
         /*
          * Find all inbound stock
@@ -28,9 +34,16 @@ public class InOutRecordRoute {
         /*
          * Add new inbound stock
          */
+        before("/api/stock/add/inbound", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         post("/api/stock/add/inbound", (req, res) -> {
             // TODO: implement this
-            return "Hello World";
+            ResponseBodyDto response = InOutRecordController.addRecord(req, res, "in");
+
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
 
         /*
@@ -38,7 +51,11 @@ public class InOutRecordRoute {
          */
         post("/api/stock/add/outbound", (req, res) -> {
             // TODO: implement this
-            return "Hello World";
+            ResponseBodyDto response = InOutRecordController.addRecord(req, res, "out");
+
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
 
         put("/api/stock/update/:id", (req, res) -> {

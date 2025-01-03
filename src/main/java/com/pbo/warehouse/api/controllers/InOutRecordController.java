@@ -1,13 +1,21 @@
 package com.pbo.warehouse.api.controllers;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.pbo.warehouse.api.controllers.interfaces.InOutRecordControllerIf;
 import com.pbo.warehouse.api.dto.ResponseBodyDto;
+import com.pbo.warehouse.api.dto.request.AddInOutRequestDto;
+import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
+import com.pbo.warehouse.api.services.InOutRecordService;
+import com.pbo.warehouse.api.services.ProductService;
 
 import spark.Request;
 import spark.Response;
 
 public class InOutRecordController implements InOutRecordControllerIf {
-
+    private final InOutRecordService InOutRecordService = new InOutRecordService();
     @Override
     public ResponseBodyDto getAllRecords(Request req, Response res, String type) {
         /*
@@ -61,7 +69,59 @@ public class InOutRecordController implements InOutRecordControllerIf {
          * -    400: bad request (invalid request body)
          * -    500: internal server error (exception handling)
          */
-        throw new UnsupportedOperationException("Unimplemented method 'addRecord'");
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
+        try {
+            // Parse request body to AddInOutRequestDto
+            AddInOutRequestDto requestDto = gson.fromJson(req.body(), AddInOutRequestDto.class);
+            String createdBy = req.attribute("email");
+
+            if (createdBy == null) {
+                res.status(401);
+                return responseBody.error(401, "Unauthorized", null);
+            }
+
+            requestDto.setCreatedBy(createdBy);
+            requestDto.setType(type);
+            System.out.println(requestDto.getType());
+            System.out.println(requestDto.getQuantity());
+            if ("out".equalsIgnoreCase(requestDto.getType())) {
+                int quantityrequest = -Math.abs(requestDto.getQuantity());
+                requestDto.setQuantity(quantityrequest);
+            }
+            System.out.println(requestDto.getRecordDate());
+
+            // Validate request body
+            if (requestDto.getProductId() == null || requestDto.getProductId().isEmpty()) {
+                res.status(400);
+                return responseBody.error(400, "Bad Request: 'productId' is required", null);
+            }
+            if (requestDto.getQuantity() <= 0) {
+                res.status(400);
+                return responseBody.error(400, "Bad Request: 'productId' is required", null);
+            }
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date recordDate = sdf.parse(requestDto.getRecordDate());
+            } catch (ParseException e) {
+                return responseBody.error(400, "Format tanggal expiredDate tidak sesuai yyyy-MM-dd", e.getMessage());
+            }
+
+            InOutRecordService.addRecord(requestDto);
+
+            // Return success response
+            res.status(201);
+            return responseBody.success(201, "Product berhasil ditambahkan", null);
+
+        } catch (IllegalArgumentException e) {
+            // Handle invalid input
+            res.status(400);
+            return responseBody.error(400, "Bad Request: " + e.getMessage(), null);
+
+        } catch (Exception e) {
+            // Handle unexpected errors
+            res.status(500);
+            return responseBody.error(500, "Internal Server Error:" + e.getMessage(), null);
+        }
     }
 
     @Override
@@ -76,4 +136,16 @@ public class InOutRecordController implements InOutRecordControllerIf {
         throw new UnsupportedOperationException("Unimplemented method 'deleteRecord'");
     }
 
+
+    // --------function bantuan------------
+    private boolean isValidDate(String date) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    sdf.setLenient(false);
+    try {
+        sdf.parse(date);
+        return true;
+    } catch (ParseException e) {
+        return false;
+    }
+}
 }
