@@ -65,7 +65,11 @@ public class ProductRoute {
 
         delete("/api/product/delete/:id", (req, res) -> {
             // TODO: implement this
-            return "Hello World";
+            AuthMiddleware.authenticate(req, res);
+            ResponseBodyDto response = productController.deleteProduct(req, res);
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
     }
 }
