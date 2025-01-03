@@ -11,4 +11,6 @@ public interface ProductServiceIf {
     GetProductResponseDto getProductById(String id);
 
     void addProduct(AddProductRequestDto product);
+
+    void deleteProduct(String id, String category);
 }

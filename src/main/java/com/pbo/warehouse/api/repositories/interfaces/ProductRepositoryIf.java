@@ -29,4 +29,6 @@ public interface ProductRepositoryIf {
     boolean updateProduct(Product product);
 
     boolean deleteProduct(int id);
+
+    boolean deleteProduct(String productId, String category);
 }
