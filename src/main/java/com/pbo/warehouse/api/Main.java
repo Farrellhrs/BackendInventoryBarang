@@ -9,8 +9,10 @@ import static spark.Spark.*;
 import com.google.gson.Gson;
 import com.pbo.warehouse.api.middleware.CorsMiddleware;
 import com.pbo.warehouse.api.middleware.LoggingMiddleware;
+import com.pbo.warehouse.api.models.InOutRecord;
 import com.pbo.warehouse.api.routes.AuthRoute;
 import com.pbo.warehouse.api.routes.DashboardRoute;
+import com.pbo.warehouse.api.routes.InOutRecordRoute;
 import com.pbo.warehouse.api.routes.ProductRoute;
 
 import spark.Spark;
@@ -43,6 +45,7 @@ public class Main {
         AuthRoute.init();
         ProductRoute.init();
         DashboardRoute.init();
+        InOutRecordRoute.init();
 
         System.out.println("Server started on port " + PORT);
     }
