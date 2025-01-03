@@ -167,8 +167,29 @@ public class InOutRecordController implements InOutRecordControllerIf {
 
     @Override
     public ResponseBodyDto deleteRecord(Request req, Response res) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRecord'");
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
+        try {
+            // Parse request path param (id)
+            String recordId = req.params(":id");
+            if (recordId == null || recordId.isEmpty()) {
+                res.status(400);
+                return responseBody.error(400, "Bad Request: 'id' is required", null);
+            }
+
+            // Call service to delete record
+            InOutRecordService.deleteRecord(recordId);
+
+            // Return success response
+            res.status(200);
+            return responseBody.success(200, "Record deleted successfully", null);
+
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return responseBody.error(400, "Bad Request: " + e.getMessage(), null);
+        } catch (Exception e) {
+            res.status(500);
+            return responseBody.error(500, "Internal Server Error: " + e.getMessage(), null);
+        }
     }
 
 

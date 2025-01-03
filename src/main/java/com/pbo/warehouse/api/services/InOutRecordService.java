@@ -113,12 +113,21 @@ public class InOutRecordService implements InOutRecordServiceIf {
 
     @Override
     public void deleteRecord(String id) {
-        /*
-         * TODO: implement this logics
-         * - call InOutRecordRepository.deleteRecord
-         * - throw AppException if there is an exception
-         */
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRecord'");
+        try {
+            // Check if the record exists
+            InOutRecord record = InOutRecordRepository.getRecordById(Integer.parseInt(id));
+            if (record == null) {
+                throw new AppException(404, "Record not found");
+            }
+            
+            // Call repository to delete the record
+            boolean isDeleted = InOutRecordRepository.deleteRecord(Integer.parseInt(id));
+            if (!isDeleted) {
+                throw new AppException(500, "Failed to delete record");
+            }
+        } catch (Exception e) {
+            throw new AppException(500, "An error occurred while deleting the record: " + e.getMessage());
+        }
     }
 
     // ----- function stock_record bantuan -------

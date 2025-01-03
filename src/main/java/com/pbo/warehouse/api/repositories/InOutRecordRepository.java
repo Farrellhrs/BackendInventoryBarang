@@ -98,8 +98,15 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
 
     @Override
     public boolean deleteRecord(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRecord'");
+        String sql = "DELETE FROM in_out_records WHERE id = ?";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, id);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0; // If rows are affected, the deletion was successful
+        } catch (SQLException e) {
+            throw new AppException(500, "Error deleting record: " + e.getMessage());
+        }
     }
 
     //------------buat table stock_record------------------

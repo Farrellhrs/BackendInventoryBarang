@@ -62,14 +62,21 @@ public class InOutRecordRoute {
         });
         put("/api/stock/update/:id", (req, res) -> {
             ResponseBodyDto response = InOutRecordController.updateRecord(req, res);
+
             res.type("application/json");
             res.status(response.getStatusCode());
             return response.toJson();
         });
 
+        before("/api/stock/delete/:id", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         delete("/api/stock/delete/:id", (req, res) -> {
-            // TODO: implement this
-            return "Hello World";
+            ResponseBodyDto response = InOutRecordController.deleteRecord(req, res);
+
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
     }
 }
