@@ -18,6 +18,7 @@ import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
 import com.pbo.warehouse.api.models.StockRecord;
+import com.pbo.warehouse.api.models.interfaces.ProductExpireable;
 import com.pbo.warehouse.api.repositories.interfaces.ProductRepositoryIf;
 
 public class ProductRepository implements ProductRepositoryIf {
@@ -622,6 +623,12 @@ System.out.println(query);
             stmt.setString(4, product.getCategory());
             stmt.setInt(5, product.getMaxStock());
             stmt.setString(6, product.getCreatedBy());
+
+            if (product instanceof ProductExpireable) {
+                stmt.setInt(7, ((ProductExpireable) product).getDaysBeforeExpire());
+            } else {
+                stmt.setNull(7, java.sql.Types.INTEGER);
+            }
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {

@@ -23,13 +23,15 @@ public class GetProductResponseDto {
 
         // Cosmetic & Fnb details
         private Date expireDate;
+        private Integer daysBeforeExpire;
 
         public ProductDetails() {
         }
 
-        public ProductDetails(String type, Date expireDate) {
+        public ProductDetails(String type, Date expireDate, Integer daysBeforeExpire) {
             this.type = type;
             this.expireDate = expireDate;
+            this.daysBeforeExpire = daysBeforeExpire;
         }
 
         public String getType() {
@@ -46,6 +48,14 @@ public class GetProductResponseDto {
 
         public void setExpireDate(Date expireDate) {
             this.expireDate = expireDate;
+        }
+
+        public Integer getDaysBeforeExpire() {
+            return daysBeforeExpire;
+        }
+
+        public void setDaysBeforeExpire(Integer daysBeforeExpire) {
+            this.daysBeforeExpire = daysBeforeExpire;
         }
     }
 
@@ -133,7 +143,7 @@ public class GetProductResponseDto {
                 product.getCreatedAt(),
                 product.getStock(),
                 product.getMaxStock(),
-                new ProductDetails(product.getType(), null));
+                new ProductDetails(product.getType(), null, null));
     }
 
     public static GetProductResponseDto fromEntityCosmetic(ProductCosmetic product) {
@@ -145,7 +155,7 @@ public class GetProductResponseDto {
                 product.getCreatedAt(),
                 product.getStock(),
                 product.getMaxStock(),
-                new ProductDetails(null, product.getExpireDate()));
+                new ProductDetails(null, product.getExpireDate(), product.getDaysBeforeExpire()));
     }
 
     public static GetProductResponseDto fromEntityFnb(ProductFnb product) {
@@ -157,6 +167,6 @@ public class GetProductResponseDto {
                 product.getCreatedAt(),
                 product.getStock(),
                 product.getMaxStock(),
-                new ProductDetails(null, product.getExpireDate()));
+                new ProductDetails(null, product.getExpireDate(), product.getDaysBeforeExpire()));
     }
 }

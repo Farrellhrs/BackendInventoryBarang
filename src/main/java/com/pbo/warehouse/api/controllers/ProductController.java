@@ -237,12 +237,14 @@ public class ProductController implements ProductControllerIf {
         final ResponseBodyDto responseBody = new ResponseBodyDto();
 
         try {
-            String product_Id = req.params(":id");
+            DeleteProductRequestDto reqbody = gson.fromJson(req.body(), DeleteProductRequestDto.class);
+            String product_Id = reqbody.getId();
+            String category = reqbody.getCategory();
+            
             if (product_Id == null || product_Id.isEmpty()) {
                 return responseBody.error(400, "ID produk tidak boleh kosong", null);
             }
 
-            String category = req.queryParams("category");
             if (category == null || category.isEmpty()) {
                 return responseBody.error(400, "Kategori produk tidak boleh kosong", null);
             }
@@ -258,7 +260,7 @@ public class ProductController implements ProductControllerIf {
             } catch (AppException e) {
                 return responseBody.error(e.getStatusCode(), e.getMessage(), null);
             } catch (Exception e) {
-                return responseBody.error(500, "Terjadi kesalahan server", null)
+                return responseBody.error(500, "Terjadi kesalahan server", null);
             }
         } catch (Exception e) {
             e.printStackTrace();
