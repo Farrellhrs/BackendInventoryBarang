@@ -145,7 +145,7 @@ public class ProductService implements ProductServiceIf {
             if (existingProduct == null) {
                 throw new AppException(404, "Produk tidak ditemukan");
             }
-System.out.println("logic valid category");
+            System.out.println("logic valid category");
             // TODO: tambah logic, jika category berubah, maka throw AppException dengan message "Kategori produk tidak boleh diubah" dan status code 400
             if (!existingProduct.getCategory().equalsIgnoreCase(product.getCategory())) {
                 throw new AppException(400, "Kategori produk tidak boleh diubah");
@@ -221,4 +221,28 @@ System.out.println("logic valid category");
 
             System.out.println("finish service");
         }
+    @Override
+    public void deleteProduct(String id, String category) {
+        if (id == null || id.isEmpty()) {
+            throw new AppException(400, "ID produk tidak boleh kosong");
+        } 
+
+        if (category == null || category.isEmpty()) {
+            throw new AppException(400, "Kategori produk tidak boleh kosong");
+        }
+
+        switch (category.toLowerCase()) {
+            case "electronic":
+                productRepository.deleteProduct(id, "electronic");
+                break;
+            case "cosmetic":
+                productRepository.deleteProduct(id, "cosmetic");
+                break;
+            case "fnb":
+                productRepository.deleteProduct(id, "fnb");
+                break;
+            default:
+                throw new AppException(400, "Kategori produk tidak valid");
+        }
+    }
 }

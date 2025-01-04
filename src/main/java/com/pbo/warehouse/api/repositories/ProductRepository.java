@@ -532,9 +532,53 @@ public class ProductRepository implements ProductRepositoryIf {
     }
 
     @Override
-    public boolean deleteProduct(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteProduct'");
+    public boolean deleteProduct(String productId, String category) {
+        String deleteCategorySQL;
+        switch (category.toLowerCase()) {
+            case "fnbs":
+                deleteCategorySQL = "DELETE FROM " + new ProductFnb().getSubTableName() + " WHERE product_id = ?";
+                break;
+            case "cosmetic":
+                deleteCategorySQL = "DELETE FROM " + new ProductCosmetic().getSubTableName() + " WHERE product_id = ?";
+                break;
+            case "electronic":
+                deleteCategorySQL = "DELETE FROM " + new ProductElectronic().getSubTableName() + " WHERE product_id = ?";  
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid category: " + category);    
+        }
+
+        String deleteProductSQL = "DELETE FROM products WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.connect();
+            PreparedStatement categoryStmt = conn.prepareStatement(deleteCategorySQL);
+            PreparedStatement productStmt = conn.prepareStatement(deleteProductSQL)) {
+            
+            conn.setAutoCommit(false);
+
+            categoryStmt.setString(1, productId);
+            int categoryRows = categoryStmt.executeUpdate();
+
+            if (categoryRows == 0) {
+                conn.rollback();
+                return false;
+            }
+
+            productStmt.setString(1, productId);
+            int productRows = productStmt.executeUpdate();
+
+            if (productRows > 0) {
+                conn.commit();
+                return true;
+            } else {
+                conn.rollback();
+                return false;
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
