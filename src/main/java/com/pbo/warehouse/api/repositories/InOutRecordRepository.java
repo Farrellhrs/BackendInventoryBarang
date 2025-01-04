@@ -79,14 +79,34 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
 
     @Override
     public void updateRecord(InOutRecord record) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateRecord'");
+        String sql = "UPDATE in_out_records SET product_id = ?, quantity = ?, record_date = ? WHERE id = ?";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, record.getProductId());
+            stmt.setInt(2, record.getQuantity());
+            stmt.setDate(3, new java.sql.Date(record.getRecordDate().getTime()));
+            stmt.setInt(4, record.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(404, "Failed to update record: Record not found");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating record in database", e);
+        }
     }
 
     @Override
     public boolean deleteRecord(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRecord'");
+        String sql = "DELETE FROM in_out_records WHERE id = ?";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, id);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0; // If rows are affected, the deletion was successful
+        } catch (SQLException e) {
+            throw new AppException(500, "Error deleting record: " + e.getMessage());
+        }
     }
 
     //------------buat table stock_record------------------

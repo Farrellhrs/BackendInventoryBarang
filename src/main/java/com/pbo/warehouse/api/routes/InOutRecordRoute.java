@@ -3,7 +3,6 @@ package com.pbo.warehouse.api.routes;
 import static spark.Spark.*;
 
 import com.pbo.warehouse.api.controllers.InOutRecordController;
-import com.pbo.warehouse.api.controllers.ProductController;
 import com.pbo.warehouse.api.dto.ResponseBodyDto;
 import com.pbo.warehouse.api.middleware.AuthMiddleware;
 
@@ -58,14 +57,26 @@ public class InOutRecordRoute {
             return response.toJson();
         });
 
+        before("/api/stock/update/:id", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         put("/api/stock/update/:id", (req, res) -> {
-            // TODO: implement this
-            return "Hello World";
+            ResponseBodyDto response = InOutRecordController.updateRecord(req, res);
+
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
 
+        before("/api/stock/delete/:id", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         delete("/api/stock/delete/:id", (req, res) -> {
-            // TODO: implement this
-            return "Hello World";
+            ResponseBodyDto response = InOutRecordController.deleteRecord(req, res);
+
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
     }
 }
