@@ -11,7 +11,7 @@ import com.pbo.warehouse.api.dto.ResponseBodyDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
 import com.pbo.warehouse.api.dto.request.UpdateProductRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
-import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
+import com.pbo.warehouse.api.dto.response.GetAllProductsResponseDto;
 import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.models.Product;
 import com.pbo.warehouse.api.models.ProductCosmetic;
@@ -94,7 +94,7 @@ public class ProductController implements ProductControllerIf {
                     category,
                     name, sort, sortByDetail, order);
 
-            GetProductsResponseDto response = productService.getProducts(params);
+            GetAllProductsResponseDto response = productService.getProducts(params);
 
             return responseBody.successWithPagination(
                     200,

@@ -42,7 +42,6 @@ public class InOutRecord extends Model {
 
     public void setProductCosmetic(ProductCosmetic product) {
         this.productCosmetic = product;
-        this.productId = product.getId();
     }
 
     public ProductElectronic getProductElectronic() {
@@ -51,7 +50,6 @@ public class InOutRecord extends Model {
 
     public void setProductElectronic(ProductElectronic product) {
         this.productElectronic = product;
-        this.productId = product.getId();
     }
 
     public ProductFnb getProductFnb() {
@@ -60,7 +58,6 @@ public class InOutRecord extends Model {
 
     public void setProductFnb(ProductFnb product) {
         this.productFnb = product;
-        this.productId = product.getId();
     }
 
     public String getType() {

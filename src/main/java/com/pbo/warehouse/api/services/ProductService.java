@@ -11,7 +11,7 @@ import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
 import com.pbo.warehouse.api.dto.request.UpdateProductRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
-import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
+import com.pbo.warehouse.api.dto.response.GetAllProductsResponseDto;
 import com.pbo.warehouse.api.dto.response.PaginationResponse;
 import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.models.ProductCosmetic;
@@ -27,7 +27,7 @@ public class ProductService implements ProductServiceIf {
     private final ProductRepository productRepository = new ProductRepository();
 
     @Override
-    public GetProductsResponseDto getProducts(GetProductsRequestDto params) {
+    public GetAllProductsResponseDto getProducts(GetProductsRequestDto params) {
         List<GetProductResponseDto> products = new ArrayList<>();
         List<ProductElectronic> productElectronics = new ArrayList<>();
         List<ProductCosmetic> productCosmetics = new ArrayList<>();
@@ -65,7 +65,7 @@ public class ProductService implements ProductServiceIf {
         totalData = productRepository.getTotalData(params.getCategory());
         PaginationResponse pagination = PaginationUtil.getPagination(params.getPage(), params.getLimit(), totalData);
 
-        GetProductsResponseDto response = new GetProductsResponseDto(
+        GetAllProductsResponseDto response = new GetAllProductsResponseDto(
                 products, pagination);
 
         return response;

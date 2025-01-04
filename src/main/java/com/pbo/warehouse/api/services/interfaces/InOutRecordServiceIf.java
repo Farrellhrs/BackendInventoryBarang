@@ -9,7 +9,7 @@ import com.pbo.warehouse.api.dto.response.GetInOutResponseDto;
 public interface InOutRecordServiceIf {
     GetAllInOutResponseDto getAllRecords(GetAllInOutRequestDto params);
 
-    GetInOutResponseDto getRecordById(String id);
+    GetInOutResponseDto getRecordById(int id);
 
     void addRecord(AddInOutRequestDto record);
 

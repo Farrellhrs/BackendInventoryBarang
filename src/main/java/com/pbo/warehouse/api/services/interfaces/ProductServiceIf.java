@@ -4,10 +4,10 @@ import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
 import com.pbo.warehouse.api.dto.request.UpdateProductRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
-import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
+import com.pbo.warehouse.api.dto.response.GetAllProductsResponseDto;
 
 public interface ProductServiceIf {
-    GetProductsResponseDto getProducts(GetProductsRequestDto params);
+    GetAllProductsResponseDto getProducts(GetProductsRequestDto params);
 
     GetProductResponseDto getProductById(String id);
 

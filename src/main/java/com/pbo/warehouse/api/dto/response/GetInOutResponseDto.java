@@ -21,7 +21,8 @@ public class GetInOutResponseDto {
 
     }
 
-    public GetInOutResponseDto(int id, String productId, String productName, String skuCode, String category, int quantity,
+    public GetInOutResponseDto(int id, String productId, String productName, String skuCode, String category,
+            int quantity,
             int currentStock, int maxStock, Date entryDate, ProductDetailsResponseDto details) {
         this.id = id;
         this.productId = productId;
@@ -133,35 +134,35 @@ public class GetInOutResponseDto {
                 inout.getQuantity(),
                 inout.getProductElectronic().getStock(),
                 inout.getProductElectronic().getMaxStock(),
-                inout.getCreatedAt(),
+                inout.getRecordDate(),
                 new ProductDetailsResponseDto(inout.getProductElectronic().getType(), null));
     }
 
     public static GetInOutResponseDto fromEntityFnb(InOutRecord inout) {
         return new GetInOutResponseDto(
-            inout.getId(),
-            inout.getProductId(),
-            inout.getProductFnb().getName(),
-            inout.getProductFnb().getSkuCode(),
-            inout.getProductFnb().getCategory(),
-            inout.getQuantity(),
-            inout.getProductFnb().getStock(),
-            inout.getProductFnb().getMaxStock(),
-            inout.getCreatedAt(),
-            new ProductDetailsResponseDto(null, inout.getProductFnb().getExpireDate()));
+                inout.getId(),
+                inout.getProductId(),
+                inout.getProductFnb().getName(),
+                inout.getProductFnb().getSkuCode(),
+                inout.getProductFnb().getCategory(),
+                inout.getQuantity(),
+                inout.getProductFnb().getStock(),
+                inout.getProductFnb().getMaxStock(),
+                inout.getRecordDate(),
+                new ProductDetailsResponseDto(null, inout.getProductFnb().getExpireDate()));
     }
 
     public static GetInOutResponseDto fromEntityCosmetic(InOutRecord inout) {
         return new GetInOutResponseDto(
-            inout.getId(),
-            inout.getProductId(),
-            inout.getProductCosmetic().getName(),
-            inout.getProductCosmetic().getSkuCode(),
-            inout.getProductCosmetic().getCategory(),
-            inout.getQuantity(),
-            inout.getProductCosmetic().getStock(),
-            inout.getProductCosmetic().getMaxStock(),
-            inout.getCreatedAt(),
-            new ProductDetailsResponseDto(null, inout.getProductCosmetic().getExpireDate()));
+                inout.getId(),
+                inout.getProductId(),
+                inout.getProductCosmetic().getName(),
+                inout.getProductCosmetic().getSkuCode(),
+                inout.getProductCosmetic().getCategory(),
+                inout.getQuantity(),
+                inout.getProductCosmetic().getStock(),
+                inout.getProductCosmetic().getMaxStock(),
+                inout.getRecordDate(),
+                new ProductDetailsResponseDto(null, inout.getProductCosmetic().getExpireDate()));
     }
 }

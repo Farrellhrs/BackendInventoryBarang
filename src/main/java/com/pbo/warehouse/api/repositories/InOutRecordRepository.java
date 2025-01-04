@@ -4,13 +4,12 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.pbo.warehouse.api.dto.request.GetAllInOutRequestDto;
-import com.pbo.warehouse.api.dto.response.CreatorResponseDto;
-import com.pbo.warehouse.api.dto.response.GetInOutResponseDto;
-import com.pbo.warehouse.api.dto.response.ProductDetailsResponseDto;
+import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.jbdc.DatabaseConnection;
 import com.pbo.warehouse.api.models.InOutRecord;
 import com.pbo.warehouse.api.models.ProductCosmetic;
@@ -18,6 +17,7 @@ import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
 
 import com.pbo.warehouse.api.models.StockRecord;
+import com.pbo.warehouse.api.models.User;
 import com.pbo.warehouse.api.repositories.interfaces.InOutRecordRepositoryIf;
 
 public class InOutRecordRepository implements InOutRecordRepositoryIf {
@@ -28,22 +28,23 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
          * TODO: implement this logics
          * - query hint: use count, join in_out with product table, and group by
          * - if productCategory is null, return total data of all products
-         * - if productCategory is either 'electronic', 'cosmetic', or 'fnb', return total data of products with the specified category
-         * - if productCategory is not null and not 'electronic', 'cosmetic', or 'fnb', return 0
+         * - if productCategory is either 'electronic', 'cosmetic', or 'fnb', return
+         * total data of products with the specified category
+         * - if productCategory is not null and not 'electronic', 'cosmetic', or 'fnb',
+         * return 0
          * - if there is an exception, return -1
          */
 
         int totalData = 0;
         String query = "SELECT COUNT(*) AS total_data FROM in_out_records";
 
-        if (productCategory != null){
+        if (productCategory != null) {
             query = query + " WHERE category = ?";
         }
-        
 
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {
-            if (productCategory != null){
+            if (productCategory != null) {
                 stmt.setString(1, productCategory);
             }
 
@@ -80,7 +81,7 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
         }
 
         String filterDate = "";
-        if (params.getStartDate() != null && params.getEndDate() != null){
+        if (params.getStartDate() != null && params.getEndDate() != null) {
             filterDate = "record_date BETWEEN " + params.getStartDate() + " AND " + params.getEndDate();
         }
 
@@ -97,15 +98,16 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
                 "                          FROM " + new StockRecord().getTableName() + " sr2 " +
                 "                          WHERE sr2.product_id = sr.product_id)" +
                 ") " +
-                "SELECT io.id, io.quantity, io.type, io.record_date p.id as pId, p.sku_code, p.name, p.category, p.max_stock, p.created_at, p.updated_at, ls.stock " +
-                "c.expire_date as cexpire_date, f.expire_date as fexpire_date, e.type as eType " + 
-                "FROM in_out_records io " + 
+                "SELECT io.id, io.quantity, io.type, io.record_date p.id as pId, p.sku_code, p.name, p.category, p.max_stock, p.created_at, p.updated_at, ls.stock "
+                +
+                "c.expire_date as cexpire_date, f.expire_date as fexpire_date, e.type as eType " +
+                "FROM in_out_records io " +
                 "LEFT JOIN products p ON p.id = io.product_id " +
                 "LEFT JOIN " + new ProductCosmetic().getSubTableName() + " c ON c.product_id = p.id " +
                 "LEFT JOIN " + new ProductElectronic().getSubTableName() + " e ON e.product_id = p.id " +
                 "LEFT JOIN " + new ProductFnb().getSubTableName() + " f ON f.product_id = p.id " +
                 "LEFT JOIN LatestStock ls ON ls.product_id = p.id " +
-                "WHERE " + 
+                "WHERE " +
                 typeInOut + " " +
                 filterCategory + " " +
                 filterDate + " " +
@@ -122,7 +124,7 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     InOutRecord inout = new InOutRecord();
-            
+
                     inout.setId(rs.getInt("id"));
                     inout.setProductId(rs.getString("pId"));
                     inout.setType(rs.getString("type"));
@@ -184,96 +186,132 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
     }
 
     @Override
-    public GetInOutResponseDto getRecordById(int id) {
+    public InOutRecord getRecordById(int id) {
         /*
          * TODO: implement this logics
          * - query hint: join in_out_records, products, stock_records, and users table
          * - return InOutRecord
          */
-        GetInOutResponseDto inout = new GetInOutResponseDto();
+        InOutRecord inout = new InOutRecord();
 
-        String query =
-        "SELECT io.id, io.quantity, io.type, io.record_date p.id as pId, p.sku_code, p.name, p.category, p.max_stock, p.created_at, p.updated_at, sr.stock " +
-                "FROM in_out_records io " + 
-                "LEFT JOIN products p ON p.id = io.product_id " +
+        String query = "SELECT io.id, io.product_id, io.quantity, io.type, io.record_date, io.created_by, p.sku_code, p.name, p.category, p.max_stock, p.created_at, u.name, u.email "
+                +
+                "FROM in_out_records io " +
+                "JOIN products p ON p.id = io.product_id " +
                 "JOIN users u ON p.created_by = u.id " +
-                "LEFT JOIN stock_records sr ON sr.product_id = p.id WHERE p.id = ?;";
-                
+                "WHERE io.id = ?;";
+
         System.out.println(query);
 
+        String productCategory = "";
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setInt(1, id);
-            stmt.setInt(2, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    inout = new GetInOutResponseDto(
-                            rs.getInt("id"),
-                            rs.getString("pId"),
-                            rs.getString("name"),
-                            rs.getString("sku_code"),
-                            rs.getString("category"),
-                            rs.getInt("quantity"),
-                            rs.getInt("stock"),
-                            rs.getInt("max_stock"),
-                            rs.getDate("record_date"),
-                            null);
+                    inout = new InOutRecord();
 
-                    CreatorResponseDto user = new CreatorResponseDto(
-                            rs.getString("user_name"),
-                            rs.getString("email"));
+                    User creator = new User();
+                    creator.setId(rs.getString("created_by"));
+                    creator.setName(rs.getString("name"));
+                    creator.setEmail(rs.getString("email"));
 
-                    inout.setCreatedBy(user);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Error(e.getMessage());
-        }
+                    inout.setCreatedBy(rs.getString("created_by"));
+                    inout.setCreator(creator);
 
-        String category = inout.getCategory();
-        String queryDetails = "";
+                    inout.setId(rs.getInt("id"));
+                    inout.setProductId(rs.getString("product_id"));
+                    inout.setQuantity(rs.getInt("quantity"));
+                    inout.setType(rs.getString("type"));
+                    inout.setRecordDate(rs.getDate("record_date"));
 
-        switch (category) {
-            case "electronic":
-                queryDetails = "SELECT * FROM " + new ProductElectronic().getSubTableName() + " WHERE product_id = " + inout.getProductId() + ";";
-                break;
-            case "cosmetic":
-                queryDetails = "SELECT * FROM " + new ProductCosmetic().getSubTableName() + " WHERE product_id = " + inout.getProductId() + ";";
-                break;
-            case "fnb":
-                queryDetails = "SELECT * FROM " + new ProductFnb().getSubTableName() + " WHERE product_id = " + inout.getProductId() + ";";
-                break;
-            default:
-                break;
-        }
+                    productCategory = rs.getString("category");
 
-        System.out.println(queryDetails);
+                    String queryDetails = "";
 
-        try (Connection connection = DatabaseConnection.connect();
-                PreparedStatement stmt = connection.prepareStatement(queryDetails)) {
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    ProductDetailsResponseDto details = new ProductDetailsResponseDto();
-
-                    switch (category) {
+                    switch (productCategory) {
                         case "electronic":
-                            details.setType(rs.getString("type"));
+                            queryDetails = "SELECT * FROM " + new ProductElectronic().getSubTableName()
+                                    + " WHERE product_id = ?";
                             break;
                         case "cosmetic":
-                            details.setExpireDate(rs.getDate("expire_date"));
+                            queryDetails = "SELECT * FROM " + new ProductCosmetic().getSubTableName()
+                                    + " WHERE product_id = ?";
                             break;
                         case "fnb":
-                            details.setExpireDate(rs.getDate("expire_date"));
+                            queryDetails = "SELECT * FROM " + new ProductFnb().getSubTableName()
+                                    + " WHERE product_id = ?";
                             break;
                         default:
-                            break;
+                            throw new IllegalArgumentException("Invalid product category");
                     }
 
-                    inout.setDetails(details);
+                    String queryLastStock = "SELECT stock FROM stock_records WHERE product_id = ? ORDER BY record_date DESC LIMIT 1;";
+
+                    int lastStock = 0;
+                    try (PreparedStatement stmtLs = connection.prepareStatement(queryLastStock)) {
+                        stmtLs.setString(1, inout.getProductId());
+
+                        try (ResultSet rsLs = stmtLs.executeQuery()) {
+                            if (rsLs.next()) {
+                                lastStock = rsLs.getInt("stock");
+                            }
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        throw new Error(e.getMessage());
+                    }
+
+                    System.out.println(queryDetails);
+
+                    try (PreparedStatement stmt2 = connection.prepareStatement(queryDetails)) {
+
+                        stmt2.setString(1, rs.getString("product_id"));
+
+                        try (ResultSet rs2 = stmt2.executeQuery()) {
+                            while (rs.next()) {
+                                switch (productCategory) {
+                                    case "electronic":
+                                        ProductElectronic productElectronic = new ProductElectronic();
+                                        productElectronic.setSkuCode(rs.getString("sku_code"));
+                                        productElectronic.setName(rs.getString("name"));
+                                        productElectronic.setCategory(rs.getString("category"));
+                                        productElectronic.setMaxStock(rs.getInt("max_stock"));
+                                        productElectronic.setStock(lastStock);
+
+                                        productElectronic.setType(rs2.getString("type"));
+                                        break;
+                                    case "cosmetic":
+                                        ProductCosmetic productCosmetic = new ProductCosmetic();
+                                        productCosmetic.setSkuCode(rs.getString("sku_code"));
+                                        productCosmetic.setName(rs.getString("name"));
+                                        productCosmetic.setCategory(rs.getString("category"));
+                                        productCosmetic.setMaxStock(rs.getInt("max_stock"));
+                                        productCosmetic.setStock(lastStock);
+
+                                        productCosmetic.setExpireDate(rs2.getDate("expire_date"));
+                                        break;
+                                    case "fnb":
+                                        ProductFnb productFnb = new ProductFnb();
+                                        productFnb.setSkuCode(rs.getString("sku_code"));
+                                        productFnb.setName(rs.getString("name"));
+                                        productFnb.setCategory(rs.getString("category"));
+                                        productFnb.setMaxStock(rs.getInt("max_stock"));
+                                        productFnb.setStock(lastStock);
+
+                                        productFnb.setExpireDate(rs2.getDate("expire_date"));
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw new Error(e.getMessage());
+                    }
                 }
             }
         } catch (Exception e) {
@@ -288,7 +326,8 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
     public InOutRecord getRecordByDateAndProductId(Date date, String productId) {
         /*
          * TODO: implement this logics
-         * - query hint: select * from in_out_records where record_date = ? and product_id = ?
+         * - query hint: select * from in_out_records where record_date = ? and
+         * product_id = ?
          * - return InOutRecord
          */
         throw new UnsupportedOperationException("Unimplemented method 'getRecordByDateAndProductId'");
@@ -301,7 +340,8 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, record.getProductId());
             stmt.setInt(2, record.getQuantity());
-            stmt.setDate(3, new java.sql.Date(record.getRecordDate().getTime())); // Convert java.util.Date to java.sql.Date
+            stmt.setDate(3, new java.sql.Date(record.getRecordDate().getTime())); // Convert java.util.Date to
+                                                                                  // java.sql.Date
             stmt.setString(4, record.getType());
 
             int rowsAffected = stmt.executeUpdate();
@@ -346,7 +386,7 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
         }
     }
 
-    //------------buat table stock_record------------------
+    // ------------buat table stock_record------------------
 
     @Override
     public StockRecord getStockRecordByDateAndProductId(Date recordDate, String productId) {
@@ -358,11 +398,10 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new StockRecord(
-                        rs.getInt("id"),
-                        rs.getString("product_id"),
-                        rs.getInt("stock"),
-                        rs.getDate("record_date")
-                    );
+                            rs.getInt("id"),
+                            rs.getString("product_id"),
+                            rs.getInt("stock"),
+                            rs.getDate("record_date"));
                 }
             }
         } catch (SQLException e) {
@@ -374,7 +413,7 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
     @Override
     public void insertStockRecord(StockRecord stockRecord) {
         String sql = "INSERT INTO stock_records (product_id, stock, record_date) " +
-                    "VALUES (?, ?, ?)";
+                "VALUES (?, ?, ?)";
         try (Connection connection = DatabaseConnection.connect()) {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, stockRecord.getProductId());
@@ -389,7 +428,7 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
     @Override
     public void updateStockRecord(int stock, Date recordDate, String productId) {
         String sql = "UPDATE stock_records SET stock = stock + ? " +
-                     "WHERE record_date = ? AND product_id = ?";
+                "WHERE record_date = ? AND product_id = ?";
         try (Connection connection = DatabaseConnection.connect()) {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setInt(1, stock);
@@ -400,11 +439,11 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
             throw new RuntimeException("Error updating stock record", e);
         }
     }
-    
+
     @Override
     public void updateCumulativeStocks(String productId, Date recordDate, int delta) {
         String sql = "UPDATE stock_records SET stock = stock + ? " +
-                     "WHERE product_id = ? AND record_date > ?";
+                "WHERE product_id = ? AND record_date > ?";
         try (Connection connection = DatabaseConnection.connect()) {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setInt(1, delta);
@@ -415,7 +454,7 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
             throw new RuntimeException("Error updating cumulative stocks", e);
         }
     }
-    
+
     // ------------b
 
 }

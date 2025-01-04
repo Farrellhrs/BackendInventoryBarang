@@ -1,7 +1,5 @@
 package com.pbo.warehouse.api.dto.request;
 
-import java.util.Date;
-
 public class AddInOutRequestDto {
     private String productId;
     private int quantity;

@@ -7,7 +7,9 @@ import java.util.List;
 
 import com.pbo.warehouse.api.controllers.interfaces.InOutRecordControllerIf;
 import com.pbo.warehouse.api.dto.ResponseBodyDto;
+import com.pbo.warehouse.api.dto.request.AddInOutRequestDto;
 import com.pbo.warehouse.api.dto.request.GetAllInOutRequestDto;
+import com.pbo.warehouse.api.dto.request.UpdateInOutRequestDto;
 import com.pbo.warehouse.api.dto.response.GetAllInOutResponseDto;
 import com.pbo.warehouse.api.dto.response.GetInOutResponseDto;
 import com.pbo.warehouse.api.exceptions.AppException;
@@ -24,17 +26,19 @@ public class InOutRecordController implements InOutRecordControllerIf {
     public ResponseBodyDto getAllRecords(Request req, Response res, String type) {
         /*
          * TODO: implement this logics
-         * - get request query params (page, limit, sort, order, category, startDate, endDate)
+         * - get request query params (page, limit, sort, order, category, startDate,
+         * endDate)
          * - validate query params
-         * -    page, limit, sort, order: integer (optional)
-         * -    category: string (optional) includes only 'electronic', 'cosmetic', 'fnb'
-         * -    startDate, endDate: date format (yyyy-MM-dd) (optional)
+         * - page, limit, sort, order: integer (optional)
+         * - category: string (optional) includes only 'electronic', 'cosmetic', 'fnb'
+         * - startDate, endDate: date format (yyyy-MM-dd) (optional)
          * - call Record service method to get all Records
          * - return responses
-         * -    200: success
-         * -    400: bad request (invalid query params)
-         * -    500: internal server error (exception handling)
-         * - response body: must include array of json (id, productId, skuCode, productName, category, quantity, recordDate)
+         * - 200: success
+         * - 400: bad request (invalid query params)
+         * - 500: internal server error (exception handling)
+         * - response body: must include array of json (id, productId, skuCode,
+         * productName, category, quantity, recordDate)
          */
         final ResponseBodyDto responseBody = new ResponseBodyDto();
 
@@ -68,7 +72,7 @@ public class InOutRecordController implements InOutRecordControllerIf {
             }
 
             // Validasi date
-            if (endDate.before(startDate)){
+            if (endDate.before(startDate)) {
                 return responseBody.error(400, "Tanggal tidak valid", null);
             }
 
@@ -99,13 +103,14 @@ public class InOutRecordController implements InOutRecordControllerIf {
          * - validate path params (id cannot be null)
          * - call Record service method to get Record by id
          * - return responses
-         * -    200: success
-         * -    400: bad request (invalid path params)
-         * -    404: not found (Record not found)
-         * -    500: internal server error (exception handling)
-         * - response body: must include json (id, productId, skuCode, productName, category, quantity, recordDate, stock, maxStock, createdBy, details)
+         * - 200: success
+         * - 400: bad request (invalid path params)
+         * - 404: not found (Record not found)
+         * - 500: internal server error (exception handling)
+         * - response body: must include json (id, productId, skuCode, productName,
+         * category, quantity, recordDate, stock, maxStock, createdBy, details)
          */
-        
+
         final ResponseBodyDto responseBody = new ResponseBodyDto();
 
         try {
@@ -115,16 +120,18 @@ public class InOutRecordController implements InOutRecordControllerIf {
                 return responseBody.error(400, "ID tidak boleh kosong", null);
             }
 
-            GetInOutResponseDto response = InOutRecordService.getRecordById(id);
+            int idInt = Integer.parseInt(id);
+
+            GetInOutResponseDto response = InOutRecordService.getRecordById(idInt);
 
             return responseBody.success(
                     200,
                     "Berhasil",
                     gson.toJson(response));
         } catch (AppException e) {
-            return responseBody.error(e.getStatusCode(), e.getMessage(), null);
+            return responseBody.error(e.getStatusCode(), e.getMessage(), e.getStackTrace());
         } catch (Exception e) {
-            return responseBody.error(500, e.getMessage(), null);
+            return responseBody.error(500, e.getMessage(), e.getStackTrace());
         }
     }
 
@@ -134,14 +141,14 @@ public class InOutRecordController implements InOutRecordControllerIf {
          * TODO: implement this logics
          * - get request body (productId, quantity, entryDate)
          * - validate request body
-         * -    productId: string (required)
-         * -    quantity: integer (required)
-         * -    entryDate: date format (yyyy-MM-dd) (required)
+         * - productId: string (required)
+         * - quantity: integer (required)
+         * - entryDate: date format (yyyy-MM-dd) (required)
          * - call Record service method to add Record
          * - return responses
-         * -    201: created
-         * -    400: bad request (invalid request body)
-         * -    500: internal server error (exception handling)
+         * - 201: created
+         * - 400: bad request (invalid request body)
+         * - 500: internal server error (exception handling)
          */
         final ResponseBodyDto responseBody = new ResponseBodyDto();
         try {
@@ -173,12 +180,8 @@ public class InOutRecordController implements InOutRecordControllerIf {
                 res.status(400);
                 return responseBody.error(400, "Bad Request: 'productId' is required", null);
             }
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                Date recordDate = sdf.parse(requestDto.getRecordDate());
-            } catch (ParseException e) {
-                return responseBody.error(400, "Format tanggal expiredDate tidak sesuai yyyy-MM-dd", e.getMessage());
-            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date recordDate = sdf.parse(requestDto.getRecordDate());
 
             InOutRecordService.addRecord(requestDto);
 
@@ -264,17 +267,4 @@ public class InOutRecordController implements InOutRecordControllerIf {
             return responseBody.error(500, "Internal Server Error: " + e.getMessage(), null);
         }
     }
-
-
-    // --------function bantuan------------
-    private boolean isValidDate(String date) {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    sdf.setLenient(false);
-    try {
-        sdf.parse(date);
-        return true;
-    } catch (ParseException e) {
-        return false;
-    }
-}
 }
