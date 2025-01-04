@@ -16,6 +16,7 @@ import com.pbo.warehouse.api.models.InOutRecord;
 import com.pbo.warehouse.api.models.ProductCosmetic;
 import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
+
 import com.pbo.warehouse.api.models.StockRecord;
 import com.pbo.warehouse.api.repositories.interfaces.InOutRecordRepositoryIf;
 
@@ -295,20 +296,126 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
 
     @Override
     public void insertRecord(InOutRecord record) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'insertRecord'");
+        String sql = "INSERT INTO in_out_records (product_id, quantity, record_date, type) VALUES (?, ?, ?, ?)";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, record.getProductId());
+            stmt.setInt(2, record.getQuantity());
+            stmt.setDate(3, new java.sql.Date(record.getRecordDate().getTime())); // Convert java.util.Date to java.sql.Date
+            stmt.setString(4, record.getType());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(500, "Gagal insert product");
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new AppException(500, e.getMessage());
+        }
     }
 
     @Override
     public void updateRecord(InOutRecord record) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateRecord'");
+        String sql = "UPDATE in_out_records SET product_id = ?, quantity = ?, record_date = ? WHERE id = ?";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, record.getProductId());
+            stmt.setInt(2, record.getQuantity());
+            stmt.setDate(3, new java.sql.Date(record.getRecordDate().getTime()));
+            stmt.setInt(4, record.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AppException(404, "Failed to update record: Record not found");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating record in database", e);
+        }
     }
 
     @Override
     public boolean deleteRecord(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRecord'");
+        String sql = "DELETE FROM in_out_records WHERE id = ?";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, id);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0; // If rows are affected, the deletion was successful
+        } catch (SQLException e) {
+            throw new AppException(500, "Error deleting record: " + e.getMessage());
+        }
     }
+
+    //------------buat table stock_record------------------
+
+    @Override
+    public StockRecord getStockRecordByDateAndProductId(Date recordDate, String productId) {
+        String sql = "SELECT * FROM stock_records WHERE record_date = ? AND product_id = ?";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setDate(1, new java.sql.Date(recordDate.getTime()));
+            stmt.setString(2, productId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new StockRecord(
+                        rs.getInt("id"),
+                        rs.getString("product_id"),
+                        rs.getInt("stock"),
+                        rs.getDate("record_date")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching stock record", e);
+        }
+        return null; // Jika tidak ditemukan
+    }
+
+    @Override
+    public void insertStockRecord(StockRecord stockRecord) {
+        String sql = "INSERT INTO stock_records (product_id, stock, record_date) " +
+                    "VALUES (?, ?, ?)";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, stockRecord.getProductId());
+            stmt.setInt(2, stockRecord.getStock());
+            stmt.setDate(3, new java.sql.Date(stockRecord.getRecordDate().getTime()));
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error inserting stock record", e);
+        }
+    }
+
+    @Override
+    public void updateStockRecord(int stock, Date recordDate, String productId) {
+        String sql = "UPDATE stock_records SET stock = stock + ? " +
+                     "WHERE record_date = ? AND product_id = ?";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, stock);
+            stmt.setDate(2, new java.sql.Date(recordDate.getTime()));
+            stmt.setString(3, productId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating stock record", e);
+        }
+    }
+    
+    @Override
+    public void updateCumulativeStocks(String productId, Date recordDate, int delta) {
+        String sql = "UPDATE stock_records SET stock = stock + ? " +
+                     "WHERE product_id = ? AND record_date > ?";
+        try (Connection connection = DatabaseConnection.connect()) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, delta);
+            stmt.setString(2, productId);
+            stmt.setDate(3, new java.sql.Date(recordDate.getTime()));
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating cumulative stocks", e);
+        }
+    }
+    
+    // ------------b
 
 }

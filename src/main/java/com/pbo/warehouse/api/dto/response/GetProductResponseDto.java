@@ -52,6 +52,22 @@ public class GetProductResponseDto {
     public GetProductResponseDto() {
     }
 
+    public void setName(String name){
+        this.productName = name;
+    }
+
+    public void setSkuCode(String code){
+        this.skuCode = code;
+    }
+
+    public void setMaxStock(int maxstock){
+        this.maxStock = maxstock;
+    }
+
+    public void setId(String id){
+        this.id = id;
+    }
+    
     public GetProductResponseDto(String id, String skuCode, String productName, String category, Date entryDate,
             int stock, int maxStock, ProductDetails details) {
         this.id = id;

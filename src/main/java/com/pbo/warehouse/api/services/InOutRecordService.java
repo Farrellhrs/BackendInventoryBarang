@@ -3,6 +3,7 @@ package com.pbo.warehouse.api.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pbo.warehouse.api.dto.ResponseBodyDto;
 import com.pbo.warehouse.api.dto.request.AddInOutRequestDto;
 import com.pbo.warehouse.api.dto.request.GetAllInOutRequestDto;
 import com.pbo.warehouse.api.dto.request.UpdateInOutRequestDto;
@@ -15,8 +16,8 @@ import com.pbo.warehouse.api.services.interfaces.InOutRecordServiceIf;
 import com.pbo.warehouse.api.utils.PaginationUtil;
 
 public class InOutRecordService implements InOutRecordServiceIf {
-    private final InOutRecordRepository inOutRecordRepository = new InOutRecordRepository();
-
+  private final InOutRecordRepository InOutRecordRepository = new InOutRecordRepository();
+  
     @Override
     public GetAllInOutResponseDto getAllRecords(GetAllInOutRequestDto params) {
         /*
@@ -74,23 +75,112 @@ public class InOutRecordService implements InOutRecordServiceIf {
          * - else, insert new record (call InOutRecordRepository.insertRecord)
          * - throw AppException if there is an exception
          */
-        throw new UnsupportedOperationException("Unimplemented method 'addRecord'");
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
+        UserRepository userRepository = new UserRepository();
+        User currentUser = userRepository.getUserByEmail(Record.getCreatedBy());
+        if (currentUser == null) {
+            throw new AppException(400, "User tidak ditemukan");
+        }
+        try {
+            // Check if an existing record exists by date and product ID
+            try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    Date utilDate = sdf.parse(Record.getRecordDate());
+                    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime()); // Convert to java.sql.Date
+                    // Insert a new record
+                    InOutRecord newRecord = new InOutRecord();
+                    newRecord.setProductId(Record.getProductId());
+                    newRecord.setQuantity(Record.getQuantity());
+                    newRecord.setRecordDate(sqlDate);
+                    newRecord.setType(Record.getType());
+                    newRecord.setCreatedBy(currentUser.getId());
+                    InOutRecordRepository.insertRecord(newRecord);
+                    addRecordToStockRecords(Record);
+                } catch (ParseException e) {
+                    responseBody.error(400, "Format tanggal Recorddate tidak sesuai yyyy-MM-dd", e.getMessage());
+                }
+        } catch (Exception e) {
+            // Throw an application exception for any issues
+            throw new AppException(500, "An error occurred while processing the record: " + e.getMessage());
+        }
     }
 
     @Override
-    public void updateRecord(UpdateInOutRequestDto Record) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateRecord'");
+    public void updateRecord(UpdateInOutRequestDto record) {
+        try {
+            // Check if the record exists
+            String productIdString = record.getCurrentProductId();
+            int currentProductId = Integer.parseInt(productIdString);
+            InOutRecord existingRecord = InOutRecordRepository.getRecordById(currentProductId);
+            if (existingRecord == null) {
+                throw new AppException(404, "Record not found");
+            }
+
+            // Update record details
+            existingRecord.setProductId(record.getNewProductId());
+            existingRecord.setQuantity(record.getQuantity());
+            existingRecord.setRecordDate(new SimpleDateFormat("yyyy-MM-dd").parse(record.getRecordDate()));
+
+            // Call repository to update record in database
+            InOutRecordRepository.updateRecord(existingRecord);
+
+        } catch (ParseException e) {
+            throw new AppException(400, "Invalid date format. Expected yyyy-MM-dd");
+        } catch (Exception e) {
+            throw new AppException(500, "An error occurred while updating the record: " + e.getMessage());
+        }
     }
 
     @Override
     public void deleteRecord(String id) {
-        /*
-         * TODO: implement this logics
-         * - call InOutRecordRepository.deleteRecord
-         * - throw AppException if there is an exception
-         */
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRecord'");
+        try {
+            // Check if the record exists
+            InOutRecord record = InOutRecordRepository.getRecordById(Integer.parseInt(id));
+            if (record == null) {
+                throw new AppException(404, "Record not found");
+            }
+            
+            // Call repository to delete the record
+            boolean isDeleted = InOutRecordRepository.deleteRecord(Integer.parseInt(id));
+            if (!isDeleted) {
+                throw new AppException(500, "Failed to delete record");
+            }
+        } catch (Exception e) {
+            throw new AppException(500, "An error occurred while deleting the record: " + e.getMessage());
+        }
+    }
+
+    // ----- function stock_record bantuan -------
+    public void addRecordToStockRecords(AddInOutRequestDto record) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date utilDate = sdf.parse(record.getRecordDate());
+        java.sql.Date recordDate = new java.sql.Date(utilDate.getTime()); // Convert to java.sql.Date
+        String productId = record.getProductId();
+        int quantity = record.getQuantity();
+        String type = record.getType();
+
+        // Hitung delta stok berdasarkan tipe transaksi
+        int delta = type.equals("in") ? quantity : -quantity;
+
+        // Periksa apakah ada record di stock_records untuk tanggal tersebut
+        StockRecord existingRecord = InOutRecordRepository.getStockRecordByDateAndProductId(recordDate, productId);
+
+        if (existingRecord != null) {
+            // Update record jika sudah ada
+            int updatedStock = existingRecord.getStock() + delta;
+            InOutRecordRepository.updateStockRecord(updatedStock, recordDate, productId);
+        } else {
+            // Insert record baru jika belum ada
+            StockRecord newRecord = new StockRecord(
+                productId,
+                delta,
+                recordDate
+            );
+            InOutRecordRepository.insertStockRecord(newRecord);
+        }
+
+        // Update kumulatif stok untuk semua tanggal setelah tanggal ini
+        InOutRecordRepository.updateCumulativeStocks(productId, recordDate, delta);
     }
 
 }
