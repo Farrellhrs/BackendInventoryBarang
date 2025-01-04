@@ -533,36 +533,45 @@ public class ProductRepository implements ProductRepositoryIf {
 
     @Override
     public boolean deleteProduct(String productId, String category) {
-        String deleteCategorySQL;
+        String deleteCategoryQuery;
         switch (category.toLowerCase()) {
-            case "fnbs":
-                deleteCategorySQL = "DELETE FROM " + new ProductFnb().getSubTableName() + " WHERE product_id = ?";
+            case "fnb":
+                deleteCategoryQuery = "DELETE FROM " + new ProductFnb().getSubTableName() + " WHERE product_id = ?";
                 break;
             case "cosmetic":
-                deleteCategorySQL = "DELETE FROM " + new ProductCosmetic().getSubTableName() + " WHERE product_id = ?";
+                deleteCategoryQuery = "DELETE FROM " + new ProductCosmetic().getSubTableName()
+                        + " WHERE product_id = ?";
                 break;
             case "electronic":
-                deleteCategorySQL = "DELETE FROM " + new ProductElectronic().getSubTableName() + " WHERE product_id = ?";  
+                deleteCategoryQuery = "DELETE FROM " + new ProductElectronic().getSubTableName()
+                        + " WHERE product_id = ?";
                 break;
             default:
-                throw new IllegalArgumentException("Invalid category: " + category);    
+                throw new IllegalArgumentException("Invalid category: " + category);
         }
 
-        String deleteProductSQL = "DELETE FROM products WHERE id = ?";
+        String deleteProductQuery = "DELETE FROM products WHERE id = ?";
+
+        String deleteInOutRecordQuery = "DELETE FROM in_out_records WHERE product_id = ?";
+
+        String deleteStockRecordQuery = "DELETE FROM stock_records WHERE product_id = ?";
 
         try (Connection conn = DatabaseConnection.connect();
-            PreparedStatement categoryStmt = conn.prepareStatement(deleteCategorySQL);
-            PreparedStatement productStmt = conn.prepareStatement(deleteProductSQL)) {
-            
+                PreparedStatement categoryStmt = conn.prepareStatement(deleteCategoryQuery);
+                PreparedStatement productStmt = conn.prepareStatement(deleteProductQuery);
+                PreparedStatement inOutRecordStmt = conn.prepareStatement(deleteInOutRecordQuery);
+                PreparedStatement stockRecordStmt = conn.prepareStatement(deleteStockRecordQuery)) {
+
             conn.setAutoCommit(false);
 
-            categoryStmt.setString(1, productId);
-            int categoryRows = categoryStmt.executeUpdate();
+            inOutRecordStmt.setString(1, productId);
+            inOutRecordStmt.executeUpdate();
 
-            if (categoryRows == 0) {
-                conn.rollback();
-                return false;
-            }
+            stockRecordStmt.setString(1, productId);
+            stockRecordStmt.executeUpdate();
+
+            categoryStmt.setString(1, productId);
+            categoryStmt.executeUpdate();
 
             productStmt.setString(1, productId);
             int productRows = productStmt.executeUpdate();
@@ -574,7 +583,7 @@ public class ProductRepository implements ProductRepositoryIf {
                 conn.rollback();
                 return false;
             }
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

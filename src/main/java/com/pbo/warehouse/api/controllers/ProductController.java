@@ -19,8 +19,6 @@ import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
 import com.pbo.warehouse.api.services.ProductService;
 import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
-import com.pbo.warehouse.api.dto.request.DeleteProductRequestDto;
-import com.pbo.warehouse.api.dto.response.DeleteProductResponseDto;
 
 import spark.Request;
 import spark.Response;
@@ -194,7 +192,7 @@ public class ProductController implements ProductControllerIf {
     public ResponseBodyDto updateProduct(Request req, Response res) {
         // TODO Auto-generated method stub
         final ResponseBodyDto responseBody = new ResponseBodyDto();
-        
+
         try {
             UpdateProductRequestDto reqBody = gson.fromJson(req.body(), UpdateProductRequestDto.class);
             String id = req.params("id");
@@ -215,7 +213,8 @@ public class ProductController implements ProductControllerIf {
                     Date expireDate = sdf.parse(details.getExpireDate());
                     details.setExpireDate(sdf.format(expireDate));
                 } catch (ParseException e) {
-                    return responseBody.error(400, "Format tanggal expiredDate tidak sesuai yyyy-MM-dd", e.getMessage());
+                    return responseBody.error(400, "Format tanggal expiredDate tidak sesuai yyyy-MM-dd",
+                            e.getMessage());
                 }
             }
 
@@ -231,38 +230,27 @@ public class ProductController implements ProductControllerIf {
         }
     }
 
-
     @Override
     public ResponseBodyDto deleteProduct(Request req, Response res) {
         final ResponseBodyDto responseBody = new ResponseBodyDto();
 
         try {
-            String product_Id = req.params(":id");
-            if (product_Id == null || product_Id.isEmpty()) {
+            String productId = req.params(":id");
+            if (productId == null || productId.isEmpty()) {
                 return responseBody.error(400, "ID produk tidak boleh kosong", null);
             }
 
-            String category = req.queryParams("category");
-            if (category == null || category.isEmpty()) {
-                return responseBody.error(400, "Kategori produk tidak boleh kosong", null);
-            }
-
-            List<String> validCategories = List.of("electronic", "cosmetic", "fnb");
-            if (!validCategories.contains(category.toLowerCase())) {
-                return responseBody.error(400, "Kategori produk tidak valid", null);
-            }
-
             try {
-                productService.deleteProduct(product_Id, category);
+                productService.deleteProduct(productId);
                 return responseBody.success(200, "Produk berhasil dihapus", null);
             } catch (AppException e) {
                 return responseBody.error(e.getStatusCode(), e.getMessage(), null);
             } catch (Exception e) {
-                return responseBody.error(500, "Terjadi kesalahan server", null)
+                return responseBody.error(500, "Terjadi kesalahan server", null);
             }
         } catch (Exception e) {
             e.printStackTrace();
             return responseBody.error(500, "Terjadi kesalahan server", null);
-        }   
+        }
     }
 }
