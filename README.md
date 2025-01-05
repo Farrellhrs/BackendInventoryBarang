@@ -1,13 +1,3 @@
-
-
-Terima kasih atas gambarnya! Berdasarkan struktur direktori yang kamu bagikan, berikut adalah pembaruan untuk README proyek backend **GudangKu** agar sesuai dengan struktur tersebut:
-
----
-
-### README.md untuk GudangKu Backend
-
----
-
 # GudangKu Backend
 
 GudangKu adalah aplikasi backend untuk mengelola data gudang. Aplikasi ini menggunakan **Spark Java** sebagai framework REST API, dengan struktur proyek modular yang memisahkan logika bisnis, rute, dan lapisan koneksi database.
