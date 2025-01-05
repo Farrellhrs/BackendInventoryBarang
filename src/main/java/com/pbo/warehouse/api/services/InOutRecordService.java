@@ -131,16 +131,21 @@ public class InOutRecordService implements InOutRecordServiceIf {
     @Override
     public void updateRecord(UpdateInOutRequestDto record) {
         try {
-            // Check if the record exists
-            String productIdString = record.getCurrentProductId();
-            int currentProductId = Integer.parseInt(productIdString);
-            InOutRecord existingRecord = inOutRecordRepository.getRecordById(currentProductId);
+            InOutRecord existingRecord = inOutRecordRepository.getRecordById(record.getId());
             if (existingRecord == null) {
                 throw new AppException(404, "Record not found");
             }
 
+            String newProductId = "";
+            if (record.getNewProductId().equals(record.getCurrentProductId())) {
+                newProductId = record.getCurrentProductId();
+            } else {
+                newProductId = record.getNewProductId();
+            }
+
             // Update record details
-            existingRecord.setProductId(record.getNewProductId());
+            existingRecord.setId(record.getId());
+            existingRecord.setProductId(newProductId);
             existingRecord.setQuantity(record.getQuantity());
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -155,10 +160,9 @@ public class InOutRecordService implements InOutRecordServiceIf {
             } else {
                 delta = existingRecord.getQuantity() - record.getQuantity();
             }
-
             // Call repository to update record in database
             inOutRecordRepository.updateRecord(existingRecord);
-            stockRecordRepository.updateCumulativeStocks(productIdString, sqlDate, delta);
+            stockRecordRepository.updateCumulativeStocks(newProductId, sqlDate, delta);
 
         } catch (Exception e) {
             throw new AppException(500, "An error occurred while updating the record: " + e.getMessage());

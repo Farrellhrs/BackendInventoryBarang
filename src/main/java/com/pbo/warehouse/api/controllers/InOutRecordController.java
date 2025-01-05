@@ -195,7 +195,7 @@ public class InOutRecordController implements InOutRecordControllerIf {
         final ResponseBodyDto responseBody = new ResponseBodyDto();
         try {
             // Parse request path param (id)
-            String recordId = req.params(":id");
+            String recordId = req.params("id");
             if (recordId == null || recordId.isEmpty()) {
                 res.status(400);
                 return responseBody.error(400, "Bad Request: 'id' is required", null);
@@ -204,6 +204,7 @@ public class InOutRecordController implements InOutRecordControllerIf {
             // Parse request body
             UpdateInOutRequestDto requestDto = gson.fromJson(req.body(), UpdateInOutRequestDto.class);
 
+            requestDto.setId(Integer.parseInt(recordId));
             // Validate request body
             if (requestDto.getCurrentProductId() == null || requestDto.getCurrentProductId().isEmpty()) {
                 res.status(400);
@@ -213,19 +214,15 @@ public class InOutRecordController implements InOutRecordControllerIf {
                 res.status(400);
                 return responseBody.error(400, "Bad Request: 'quantity' must be greater than 0", null);
             }
-
+            
             // Call service to update record
             InOutRecordService.updateRecord(requestDto);
 
-            // Return success response
-            res.status(200);
             return responseBody.success(200, "Record updated successfully", null);
 
         } catch (AppException e) {
-            res.status(400);
             return responseBody.error(400, "Bad Request: " + e.getMessage(), null);
         } catch (Exception e) {
-            res.status(500);
             return responseBody.error(500, "Internal Server Error: " + e.getMessage(), null);
         }
     }

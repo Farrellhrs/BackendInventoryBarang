@@ -52,6 +52,7 @@ public class DashboardController implements DashboardControllerIf {
         } catch (AppException e) {
             return responseBody.error(400, e.getMessage(), "");
         } catch (Exception e) {
+            e.printStackTrace();
             return responseBody.error(500, e.getMessage(), "");
         }
     }
@@ -67,6 +68,7 @@ public class DashboardController implements DashboardControllerIf {
         } catch (AppException e) {
             return responseBody.error(400, e.getMessage(), "");
         } catch (Exception e) {
+            e.printStackTrace();
             return responseBody.error(500, e.getMessage(), "");
         }
     }

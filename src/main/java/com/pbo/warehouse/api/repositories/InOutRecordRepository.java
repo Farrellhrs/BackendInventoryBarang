@@ -370,18 +370,25 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
     @Override
     public void updateRecord(InOutRecord record) {
         String sql = "UPDATE in_out_records SET product_id = ?, quantity = ?, record_date = ? WHERE id = ?";
-        try (Connection connection = DatabaseConnection.connect()) {
-            PreparedStatement stmt = connection.prepareStatement(sql);
+        try (Connection connection = DatabaseConnection.connect();
+                PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            // Set parameters for the PreparedStatement
             stmt.setString(1, record.getProductId());
             stmt.setInt(2, record.getQuantity());
-            stmt.setDate(3, new java.sql.Date(record.getRecordDate().getTime()));
+            stmt.setDate(3, record.getRecordDate());
             stmt.setInt(4, record.getId());
 
+            // Execute the update
             int rowsAffected = stmt.executeUpdate();
+
+            // Check if any rows were updated
             if (rowsAffected == 0) {
                 throw new AppException(404, "Failed to update record: Record not found");
             }
         } catch (SQLException e) {
+            // Handle SQL exception and throw a more specific exception
+            e.printStackTrace();
             throw new RuntimeException("Error updating record in database", e);
         }
     }

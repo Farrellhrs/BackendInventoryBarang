@@ -190,7 +190,6 @@ public class ProductController implements ProductControllerIf {
 
     @Override
     public ResponseBodyDto updateProduct(Request req, Response res) {
-        // TODO Auto-generated method stub
         final ResponseBodyDto responseBody = new ResponseBodyDto();
 
         try {

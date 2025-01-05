@@ -74,6 +74,11 @@ public class ProductService implements ProductServiceIf {
     @Override
     public GetProductResponseDto getProductById(String id) {
         GetProductResponseDto product = productRepository.getProductById(id);
+
+        // if (!"electronic".equals(product.getCategory())) {
+        // ProductDetails details = product.getDetails();
+        // }
+
         return product;
     }
 
@@ -147,7 +152,7 @@ public class ProductService implements ProductServiceIf {
             throw new AppException(404, "Produk tidak ditemukan");
         }
         System.out.println("logic valid category");
-        // TODO: tambah logic, jika category berubah, maka throw AppException dengan
+
         // message "Kategori produk tidak boleh diubah" dan status code 400
         if (!existingProduct.getCategory().equalsIgnoreCase(product.getCategory())) {
             throw new AppException(400, "Kategori produk tidak boleh diubah");
@@ -166,8 +171,8 @@ public class ProductService implements ProductServiceIf {
                 updatedElectronic.setId(existingProduct.getId());
                 updatedElectronic.setName(existingProduct.getProductName());
                 updatedElectronic.setSkuCode(existingProduct.getSkuCode());
-                updatedElectronic.setCategory(existingProduct.getCategory());
                 updatedElectronic.setMaxStock(existingProduct.getMaxStock());
+
                 updatedElectronic.setType(product.getDetails().getType());
                 try {
                     productRepository.updateProductElectronic(updatedElectronic);
@@ -182,8 +187,8 @@ public class ProductService implements ProductServiceIf {
                 updatedCosmetic.setId(existingProduct.getId());
                 updatedCosmetic.setName(existingProduct.getProductName());
                 updatedCosmetic.setSkuCode(existingProduct.getSkuCode());
-                updatedCosmetic.setCategory(existingProduct.getCategory());
                 updatedCosmetic.setMaxStock(existingProduct.getMaxStock());
+
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 Date utilDate;
                 try {
@@ -191,8 +196,8 @@ public class ProductService implements ProductServiceIf {
                     java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime()); // Convert to java.sql.Date
                     updatedCosmetic.setExpireDate(sqlDate); // Pass the java.sql.Date
                 } catch (ParseException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
+                    throw new AppException(400, "Format tanggal kadaluarsa salah");
                 } // java.util.Date
                 productRepository.updateProductCosmetic(updatedCosmetic);
                 productRepository.updateProduct(updatedCosmetic);
@@ -202,7 +207,7 @@ public class ProductService implements ProductServiceIf {
                 updatedFnb.setId(existingProduct.getId());
                 updatedFnb.setName(existingProduct.getProductName());
                 updatedFnb.setSkuCode(existingProduct.getSkuCode());
-                updatedFnb.setCategory(existingProduct.getCategory());
+
                 updatedFnb.setMaxStock(existingProduct.getMaxStock());
                 SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
                 Date utilDate2;
@@ -211,8 +216,8 @@ public class ProductService implements ProductServiceIf {
                     java.sql.Date sqlDate2 = new java.sql.Date(utilDate2.getTime()); // Convert to java.sql.Date
                     updatedFnb.setExpireDate(sqlDate2); // Pass the java.sql.Date
                 } catch (ParseException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
+                    throw new AppException(400, "Format tanggal kadaluarsa salah");
                 } // java.util.Date
                 productRepository.updateProductFnB(updatedFnb);
                 productRepository.updateProduct(updatedFnb);

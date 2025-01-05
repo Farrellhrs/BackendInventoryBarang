@@ -429,11 +429,9 @@ public class ProductRepository implements ProductRepositoryIf {
         }
     }
 
-    // TODO: Masukin method ini ke interface
     @Override
     public void updateProductElectronic(ProductElectronic product) {
 
-        // TODO: nama table di query salah, jgn hardcode, pake method
         // product.getSubTableName()
         String query = "UPDATE product_electronics SET type = ? WHERE product_id = ?;";
         System.out.println(query);
@@ -467,7 +465,6 @@ public class ProductRepository implements ProductRepositoryIf {
         }
     }
 
-    // TODO: Masukin method ini ke interface
     @Override
     public void updateProductFnB(ProductFnb product) {
         String query = "UPDATE product_fnbs SET expire_date = ? WHERE product_id = ?";
@@ -488,7 +485,6 @@ public class ProductRepository implements ProductRepositoryIf {
         }
     }
 
-    // TODO: Masukin method ini ke interface
     @Override
     public void updateProductCosmetic(ProductCosmetic product) {
         String query = "UPDATE product_cosmetics SET expire_date = ? WHERE product_id = ?";
@@ -512,13 +508,14 @@ public class ProductRepository implements ProductRepositoryIf {
     @Override
     public void updateProduct(Product product) {
         System.out.println("start update product parent");
-        String query = "UPDATE products SET name = ? WHERE id = ?;";
+        String query = "UPDATE products SET name = ?, max_stock = ? WHERE id = ?;";
         System.out.println(query);
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setString(1, product.getName());
-            stmt.setString(2, product.getId());
+            stmt.setInt(2, product.getMaxStock());
+            stmt.setString(3, product.getId());
             System.out.println(product.getId());
 
             int rowsAffected = stmt.executeUpdate();
@@ -629,12 +626,6 @@ public class ProductRepository implements ProductRepositoryIf {
             stmt.setString(4, product.getCategory());
             stmt.setInt(5, product.getMaxStock());
             stmt.setString(6, product.getCreatedBy());
-
-            if (product instanceof ProductExpireable) {
-                stmt.setInt(7, ((ProductExpireable) product).getDaysBeforeExpire());
-            } else {
-                stmt.setNull(7, java.sql.Types.INTEGER);
-            }
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
