@@ -103,15 +103,24 @@ public class UserRepository implements UserRepositoryIf {
 
     @Override
     public boolean updateUser(User user) {
-        String query = "UPDATE " + user.getTableName() + " SET name = ?, email = ?, password = ? WHERE id = ?";
+        String query = "";
+
+        if (user.getPassword() != null) {
+            query = "UPDATE " + user.getTableName() + " SET name = ?, email = ?, password = ? WHERE id = ?";
+        } else {
+            query = "UPDATE " + user.getTableName() + " SET name = ?, email = ? WHERE id = ?";
+        }
 
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {
 
-            stmt.setString(1, user.getName());
-            stmt.setString(2, user.getEmail());
-            stmt.setString(3, user.getPassword());
-            stmt.setString(4, user.getId());
+            int index = 1;
+            stmt.setString(index++, user.getName());
+            stmt.setString(index++, user.getEmail());
+            if (user.getPassword() != null) {
+                stmt.setString(index++, user.getPassword());
+            }
+            stmt.setString(index, user.getId());
 
             int affectedRows = stmt.executeUpdate();
 

@@ -26,26 +26,35 @@ public class UserService implements UserServiceIf {
 
     @Override
     public void updateUserProfile(UpdateUserProfileRequestDto data) {
-        User user = new User(data.getName(), data.getNewEmail(), data.getPassword());
-
         User currentUser = userRepository.getUserByEmail(data.getOldEmail());
+        if (currentUser == null) {
+            throw new AppException(404, "User tidak ditemukan");
+        }
 
-        User existingUser = new User();
+        if (data.getNewEmail() == currentUser.getEmail()) {
+            data.setNewEmail(null);
+        }
+
         if (data.getNewEmail() != null) {
-            existingUser = userRepository.getUserByEmail(data.getNewEmail());
+            User existingUser = userRepository.getUserByEmail(data.getNewEmail());
             if (existingUser != null) {
                 if (!existingUser.getEmail().equals(data.getNewEmail())) {
                     throw new AppException(400, "Email sudah digunakan");
                 }
             }
+            currentUser.setEmail(data.getNewEmail());
         }
 
-        String hashedPassword = BCrypt.hashpw(data.getPassword(), BCrypt.gensalt());
+        if (data.getPassword() != null) {
+            if (!data.getPassword().equals(data.getConfirmPassword())) {
+                throw new AppException(400, "Password tidak sama");
+            }
+            currentUser.setPassword(BCrypt.hashpw(data.getPassword(), BCrypt.gensalt()));
+        }
 
-        user.setId(currentUser.getId());
-        user.setPassword(hashedPassword);
+        currentUser.setName(data.getName());
 
-        if (!userRepository.updateUser(user)) {
+        if (!userRepository.updateUser(currentUser)) {
             throw new AppException(500, "Gagal mengupdate user");
         }
     }

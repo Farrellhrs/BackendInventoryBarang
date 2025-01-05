@@ -26,6 +26,10 @@ public class UpdateUserProfileRequestDto {
         return newEmail;
     }
 
+    public void setNewEmail(String newEmail) {
+        this.newEmail = newEmail;
+    }
+
     public String getOldEmail() {
         return oldEmail;
     }
