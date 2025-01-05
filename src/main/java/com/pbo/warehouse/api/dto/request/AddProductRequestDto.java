@@ -15,6 +15,7 @@ public class AddProductRequestDto {
 
         // Cosmetic & Fnb details
         private String expireDate;
+        private int daysBeforeExpire;
 
         public ProductDetails() {
         }
@@ -38,6 +39,14 @@ public class AddProductRequestDto {
 
         public void setExpireDate(String expireDate) {
             this.expireDate = expireDate;
+        }
+
+        public int getDaysBeforeExpire() {
+            return daysBeforeExpire;
+        }
+
+        public void setDaysBeforeExpire(int daysBeforeExpire) {
+            this.daysBeforeExpire = daysBeforeExpire;
         }
     }
 

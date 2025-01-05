@@ -1,6 +1,8 @@
 package com.pbo.warehouse.api.models;
 
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +32,15 @@ public class ProductCosmetic extends Product implements ProductExpireable {
 
     @Override
     public int getDaysBeforeExpire() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDaysBeforeExpire'");
+        if (expireDate == null) {
+            throw new IllegalArgumentException("Tanggal kedaluwarsa belum diatur");
+        }
+
+        LocalDate expireLocalDate = expireDate.toLocalDate();
+        LocalDate currentDate = LocalDate.now();
+        long daysBeforeExpire = ChronoUnit.DAYS.between(currentDate, expireLocalDate);
+
+        return (int) daysBeforeExpire;
     }
+    
 }
