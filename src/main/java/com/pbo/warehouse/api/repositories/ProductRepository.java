@@ -593,23 +593,8 @@ public class ProductRepository implements ProductRepositoryIf {
     @Override
     public int getTotalData(String productCategory) {
         int totalData = 0;
-        String tableName = "";
 
-        switch (productCategory) {
-            case "electronic":
-                tableName = new ProductElectronic().getTableName();
-                break;
-            case "cosmetic":
-                tableName = new ProductCosmetic().getTableName();
-                break;
-            case "fnb":
-                tableName = new ProductFnb().getTableName();
-                break;
-            default:
-                break;
-        }
-
-        String query = "SELECT COUNT(*) AS total_data FROM " + tableName + " WHERE category = ?";
+        String query = "SELECT COUNT(*) AS total_data FROM products WHERE category = ?";
 
         try (Connection connection = DatabaseConnection.connect();
                 PreparedStatement stmt = connection.prepareStatement(query)) {

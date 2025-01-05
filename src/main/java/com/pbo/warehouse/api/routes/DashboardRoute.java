@@ -18,8 +18,11 @@ public class DashboardRoute {
         });
 
         get("/api/dashboard/summary", (req, res) -> {
-            // TODO: implement this
-            return "Hello World";
+            ResponseBodyDto response = controller.getSummary(req, res);
+
+            res.type("application/json");
+            res.status(response.getStatusCode());
+            return response.toJson();
         });
     }
 }

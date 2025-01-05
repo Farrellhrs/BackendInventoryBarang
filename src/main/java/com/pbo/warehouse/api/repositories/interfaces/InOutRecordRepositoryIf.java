@@ -8,13 +8,13 @@ import com.pbo.warehouse.api.models.InOutRecord;
 import com.pbo.warehouse.api.models.StockRecord;
 
 public interface InOutRecordRepositoryIf {
-    int getTotalData(String productCategory);
+    int getTotalData(GetAllInOutRequestDto params);
 
     List<InOutRecord> getAllRecords(GetAllInOutRequestDto params);
 
-    InOutRecord getRecordById(int id);
+    List<InOutRecord> getRecordsByPeriod(int year, int month);
 
-    InOutRecord getRecordByDateAndProductId(Date date, String productId);
+    InOutRecord getRecordById(int id);
 
     void insertRecord(InOutRecord record);
 
@@ -24,7 +24,8 @@ public interface InOutRecordRepositoryIf {
 
     // table stock record
     StockRecord getStockRecordByDateAndProductId(Date recordDate, String productId);
+
     void insertStockRecord(StockRecord stockRecord);
+
     void updateStockRecord(int stock, Date recordDate, String productId);
-    void updateCumulativeStocks(String productId, Date recordDate, int delta);
 }

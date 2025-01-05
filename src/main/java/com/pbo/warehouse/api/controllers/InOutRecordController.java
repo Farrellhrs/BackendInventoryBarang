@@ -46,9 +46,9 @@ public class InOutRecordController implements InOutRecordControllerIf {
             String page = req.queryParams("page");
             String limit = req.queryParams("limit");
             String category = req.queryParams("category");
-            Date startDate = new SimpleDateFormat("yyyy-MM-dd").parse(req.queryParams("startDate"));
+            String startDateStr = req.queryParams("startDate");
             String sort = req.queryParams("sort");
-            Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(req.queryParams("endDate"));
+            String endDateStr = req.queryParams("endDate");
             String order = req.queryParams("order");
 
             // Validasi kategori
@@ -57,12 +57,16 @@ public class InOutRecordController implements InOutRecordControllerIf {
             validCategories.add("cosmetic");
             validCategories.add("fnb");
 
-            if (!validCategories.contains(category)) {
+            if (category != null && !category.isEmpty() && !validCategories.contains(category)) {
                 return responseBody.error(400, "Kategori tidak valid", null);
             }
 
             // Validasi sort (kolom)
-            if (sort != null && !InOutRecord.toColumns().contains(sort)) {
+            List<String> validColumns = InOutRecord.toColumns();
+            validColumns.add("sku_code");
+            validColumns.add("name");
+            validColumns.add("category");
+            if (sort != null && !validColumns.contains(sort)) {
                 return responseBody.error(400, "Kolom sort tidak valid", null);
             }
 
@@ -71,9 +75,20 @@ public class InOutRecordController implements InOutRecordControllerIf {
                 return responseBody.error(400, "Order tidak valid", null);
             }
 
+            Date startDate = null;
+            Date endDate = null;
+
+            if (startDateStr != null && !startDateStr.isEmpty()) {
+                startDate = new SimpleDateFormat("yyyy-MM-dd").parse(startDateStr);
+            }
+
+            if (endDateStr != null && !endDateStr.isEmpty()) {
+                endDate = new SimpleDateFormat("yyyy-MM-dd").parse(endDateStr);
+            }
+
             // Validasi date
-            if (endDate.before(startDate)) {
-                return responseBody.error(400, "Tanggal tidak valid", null);
+            if (startDate != null && endDate != null && startDate.after(endDate)) {
+                return responseBody.error(400, "Tanggal awal tidak boleh lebih besar dari tanggal akhir", null);
             }
 
             GetAllInOutRequestDto params = new GetAllInOutRequestDto(
@@ -85,7 +100,7 @@ public class InOutRecordController implements InOutRecordControllerIf {
 
             return responseBody.successWithPagination(
                     200,
-                    "Berhasil",
+                    "Berhasil mendapatkan data barang",
                     gson.toJson(response.getData()),
                     gson.toJson(response.getPagination()));
         } catch (AppException e) {
@@ -126,7 +141,7 @@ public class InOutRecordController implements InOutRecordControllerIf {
 
             return responseBody.success(
                     200,
-                    "Berhasil",
+                    "Berhasil mendapatkan data barang",
                     gson.toJson(response));
         } catch (AppException e) {
             return responseBody.error(e.getStatusCode(), e.getMessage(), e.getStackTrace());
@@ -137,19 +152,6 @@ public class InOutRecordController implements InOutRecordControllerIf {
 
     @Override
     public ResponseBodyDto addRecord(Request req, Response res, String type) {
-        /*
-         * TODO: implement this logics
-         * - get request body (productId, quantity, entryDate)
-         * - validate request body
-         * - productId: string (required)
-         * - quantity: integer (required)
-         * - entryDate: date format (yyyy-MM-dd) (required)
-         * - call Record service method to add Record
-         * - return responses
-         * - 201: created
-         * - 400: bad request (invalid request body)
-         * - 500: internal server error (exception handling)
-         */
         final ResponseBodyDto responseBody = new ResponseBodyDto();
         try {
             // Parse request body to AddInOutRequestDto
@@ -165,38 +167,25 @@ public class InOutRecordController implements InOutRecordControllerIf {
             requestDto.setType(type);
             System.out.println(requestDto.getType());
             System.out.println(requestDto.getQuantity());
-            if ("out".equalsIgnoreCase(requestDto.getType())) {
-                int quantityrequest = -Math.abs(requestDto.getQuantity());
-                requestDto.setQuantity(quantityrequest);
-            }
+            
             System.out.println(requestDto.getRecordDate());
+            System.out.println(requestDto.getProductId());
 
             // Validate request body
             if (requestDto.getProductId() == null || requestDto.getProductId().isEmpty()) {
-                res.status(400);
                 return responseBody.error(400, "Bad Request: 'productId' is required", null);
             }
             if (requestDto.getQuantity() <= 0) {
-                res.status(400);
-                return responseBody.error(400, "Bad Request: 'productId' is required", null);
+                return responseBody.error(400, "Bad Request: 'quantity' is required", null);
             }
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date recordDate = sdf.parse(requestDto.getRecordDate());
-
             InOutRecordService.addRecord(requestDto);
 
-            // Return success response
-            res.status(201);
             return responseBody.success(201, "Product berhasil ditambahkan", null);
 
-        } catch (IllegalArgumentException e) {
-            // Handle invalid input
-            res.status(400);
+        } catch (AppException e) {
             return responseBody.error(400, "Bad Request: " + e.getMessage(), null);
 
         } catch (Exception e) {
-            // Handle unexpected errors
-            res.status(500);
             return responseBody.error(500, "Internal Server Error:" + e.getMessage(), null);
         }
     }
@@ -232,7 +221,7 @@ public class InOutRecordController implements InOutRecordControllerIf {
             res.status(200);
             return responseBody.success(200, "Record updated successfully", null);
 
-        } catch (IllegalArgumentException e) {
+        } catch (AppException e) {
             res.status(400);
             return responseBody.error(400, "Bad Request: " + e.getMessage(), null);
         } catch (Exception e) {

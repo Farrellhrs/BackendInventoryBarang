@@ -14,8 +14,11 @@ public class InOutRecordRoute {
         /*
          * Find all inbound stock
          */
+        before("/api/stock/find/inbound", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         get("/api/stock/find/inbound", (req, res) -> {
-            ResponseBodyDto response = inOutRecordController.getAllRecords(req, res, "out");
+            ResponseBodyDto response = inOutRecordController.getAllRecords(req, res, "in");
 
             res.type("application/json");
             res.status(response.getStatusCode());
@@ -25,14 +28,20 @@ public class InOutRecordRoute {
         /*
          * Find all outbound stock
          */
+        before("/api/stock/find/outbound", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         get("/api/stock/find/outbound", (req, res) -> {
-            ResponseBodyDto response = inOutRecordController.getAllRecords(req, res, "in");
+            ResponseBodyDto response = inOutRecordController.getAllRecords(req, res, "out");
 
             res.type("application/json");
             res.status(response.getStatusCode());
             return response.toJson();
         });
 
+        before("/api/stock/find/:id", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         get("/api/stock/find/:id", (req, res) -> {
             ResponseBodyDto response = inOutRecordController.getRecordById(req, res);
 
@@ -48,7 +57,6 @@ public class InOutRecordRoute {
             AuthMiddleware.authenticate(req, res);
         });
         post("/api/stock/add/inbound", (req, res) -> {
-            // TODO: implement this
             ResponseBodyDto response = inOutRecordController.addRecord(req, res, "in");
 
             res.type("application/json");
@@ -59,8 +67,10 @@ public class InOutRecordRoute {
         /*
          * Add new outbound stock
          */
+        before("/api/stock/add/outbound", (req, res) -> {
+            AuthMiddleware.authenticate(req, res);
+        });
         post("/api/stock/add/outbound", (req, res) -> {
-            // TODO: implement this
             ResponseBodyDto response = inOutRecordController.addRecord(req, res, "out");
 
             res.type("application/json");

@@ -117,18 +117,7 @@ public class GetDashboardChartResponseDto {
     }
 
     public void setTotalStock(int[] totalStock) {
-        if (totalStock == null) {
-            this.totalStock = new int[0];
-        } else if (totalStock.length != this.daysCount) {
-            this.totalStock = new int[this.daysCount];
-            for (int i = 0; i < this.daysCount; i++) {
-                if (i < totalStock.length) {
-                    this.totalStock[i] = totalStock[i];
-                } else {
-                    this.totalStock[i] = totalStock[totalStock.length - 1];
-                }
-            }
-        }
+        this.totalStock = totalStock;
     }
 
     public void setDetails(ChartDetail details) {

@@ -10,4 +10,6 @@ public interface UserRepositoryIf {
     User getUserByEmail(String email);
 
     boolean addUser(User user);
+
+    boolean updateUser(User user);
 }

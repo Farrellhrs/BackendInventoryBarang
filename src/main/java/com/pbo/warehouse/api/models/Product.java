@@ -14,6 +14,10 @@ public abstract class Product extends Model {
     private String createdBy;
     private User creator;
 
+    public Product() {
+        super("products");
+    }
+
     public Product(String subTableName) {
         super("products");
         this.subTableName = subTableName;

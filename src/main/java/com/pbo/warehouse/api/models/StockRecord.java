@@ -14,7 +14,6 @@ public class StockRecord extends Model {
     }
 
     public StockRecord(int id, String productId, int stock, Date recordDate) {
-        //TODO Auto-generated constructor stub
         super("stock_records");
         this.id = id;
         this.productId = productId;
@@ -23,26 +22,49 @@ public class StockRecord extends Model {
     }
 
     public StockRecord(String productId, int stock, Date recordDate) {
-        //TODO Auto-generated constructor stub
         super("stock_records");
         this.productId = productId;
         this.stock = stock;
         this.recordDate = recordDate;
     }
 
-    public int getId(){
+    public int getId() {
         return this.id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getProductId() {
         return this.productId;
     }
 
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
     public int getStock() {
         return this.stock;
     }
 
-    public java.util.Date getRecordDate() {
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public Date getRecordDate() {
         return this.recordDate;
+    }
+
+    public void setRecordDate(Date recordDate) {
+        this.recordDate = recordDate;
+    }
+
+    public Product getProduct() {
+        return this.product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
     }
 }

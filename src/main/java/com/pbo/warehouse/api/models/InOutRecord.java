@@ -1,7 +1,7 @@
 package com.pbo.warehouse.api.models;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 public class InOutRecord extends Model {
@@ -10,6 +10,7 @@ public class InOutRecord extends Model {
     private ProductCosmetic productCosmetic;
     private ProductElectronic productElectronic;
     private ProductFnb productFnb;
+    private Product product;
     private String type; // in or out
     private int quantity;
     private Date recordDate;
@@ -58,6 +59,15 @@ public class InOutRecord extends Model {
 
     public void setProductFnb(ProductFnb product) {
         this.productFnb = product;
+    }
+
+    public Product getProduct() {
+        return this.product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+        this.productId = product.getId();
     }
 
     public String getType() {

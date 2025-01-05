@@ -2,7 +2,9 @@ package com.pbo.warehouse.api.dto.response;
 
 import java.util.Date;
 
+import com.google.gson.annotations.SerializedName;
 import com.pbo.warehouse.api.models.InOutRecord;
+import com.pbo.warehouse.api.utils.DateSerializer;
 
 public class GetInOutResponseDto {
     private int id;
@@ -13,17 +15,18 @@ public class GetInOutResponseDto {
     private int quantity;
     private int currentStock;
     private int maxStock;
-    private Date entryDate;
+    @SerializedName("recordDate")
+    @com.google.gson.annotations.JsonAdapter(DateSerializer.class)
+    private Date recordDate;
     private CreatorResponseDto createdBy;
     private ProductDetailsResponseDto details;
 
     public GetInOutResponseDto() {
-
     }
 
     public GetInOutResponseDto(int id, String productId, String productName, String skuCode, String category,
             int quantity,
-            int currentStock, int maxStock, Date entryDate, ProductDetailsResponseDto details) {
+            int currentStock, int maxStock, Date recordDate, ProductDetailsResponseDto details) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -32,7 +35,7 @@ public class GetInOutResponseDto {
         this.quantity = quantity;
         this.currentStock = currentStock;
         this.maxStock = maxStock;
-        this.entryDate = entryDate;
+        this.recordDate = recordDate;
         this.details = details;
     }
 
@@ -100,12 +103,12 @@ public class GetInOutResponseDto {
         this.maxStock = maxStock;
     }
 
-    public Date getEntryDate() {
-        return this.entryDate;
+    public Date getRecordDate() {
+        return this.recordDate;
     }
 
-    public void setEntryDate(Date entryDate) {
-        this.entryDate = entryDate;
+    public void setRecordDate(Date recordDate) {
+        this.recordDate = recordDate;
     }
 
     public CreatorResponseDto getCreatedBy() {

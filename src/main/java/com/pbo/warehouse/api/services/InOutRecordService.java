@@ -10,6 +10,7 @@ import com.pbo.warehouse.api.dto.ResponseBodyDto;
 import com.pbo.warehouse.api.dto.request.AddInOutRequestDto;
 import com.pbo.warehouse.api.dto.request.GetAllInOutRequestDto;
 import com.pbo.warehouse.api.dto.request.UpdateInOutRequestDto;
+import com.pbo.warehouse.api.dto.response.CreatorResponseDto;
 import com.pbo.warehouse.api.dto.response.GetAllInOutResponseDto;
 import com.pbo.warehouse.api.dto.response.GetInOutResponseDto;
 import com.pbo.warehouse.api.dto.response.PaginationResponse;
@@ -18,42 +19,43 @@ import com.pbo.warehouse.api.models.InOutRecord;
 import com.pbo.warehouse.api.models.StockRecord;
 import com.pbo.warehouse.api.models.User;
 import com.pbo.warehouse.api.repositories.InOutRecordRepository;
+import com.pbo.warehouse.api.repositories.StockRecordRepository;
 import com.pbo.warehouse.api.repositories.UserRepository;
 import com.pbo.warehouse.api.services.interfaces.InOutRecordServiceIf;
 import com.pbo.warehouse.api.utils.PaginationUtil;
 
 public class InOutRecordService implements InOutRecordServiceIf {
     private final InOutRecordRepository inOutRecordRepository = new InOutRecordRepository();
+    private final StockRecordRepository stockRecordRepository = new StockRecordRepository();
 
     @Override
     public GetAllInOutResponseDto getAllRecords(GetAllInOutRequestDto params) {
-        /*
-         * TODO: implement this logics
-         * - get all Records (call InOutRecordRepository.getAllRecords)
-         * - get total data (call InOutRecordRepository.getTotalData)
-         * - create pagination response (call PaginationUtil.createPaginationResponse)
-         * - return GetAllInOutResponseDto
-         * - throw AppException if there is an exception
-         */
-        List<InOutRecord> records = new ArrayList<>();
-        List<GetInOutResponseDto> inouts = new ArrayList<>();
         int totalData = 0;
-        records = inOutRecordRepository.getAllRecords(params);
+        List<GetInOutResponseDto> inouts = new ArrayList<>();
 
-        for (InOutRecord inout : records) {
-            inouts.add(GetInOutResponseDto.fromEntityElectronic(inout));
-        }
+        List<InOutRecord> records = inOutRecordRepository.getAllRecords(params);
 
-        for (InOutRecord inout : records) {
-            inouts.add(GetInOutResponseDto.fromEntityCosmetic(inout));
-        }
-
-        for (InOutRecord inout : records) {
-            inouts.add(GetInOutResponseDto.fromEntityFnb(inout));
-        }
-
-        totalData = inOutRecordRepository.getTotalData(params.getCategory());
+        totalData = inOutRecordRepository.getTotalData(params);
         PaginationResponse pagination = PaginationUtil.getPagination(params.getPage(), params.getLimit(), totalData);
+
+        for (InOutRecord record : records) {
+            GetInOutResponseDto response = new GetInOutResponseDto();
+            if (record.getProductElectronic() != null) {
+                response = GetInOutResponseDto.fromEntityElectronic(record);
+            } else if (record.getProductCosmetic() != null) {
+                response = GetInOutResponseDto.fromEntityCosmetic(record);
+            } else if (record.getProductFnb() != null) {
+                response = GetInOutResponseDto.fromEntityFnb(record);
+            } else {
+                throw new AppException(404, "Error getting record");
+            }
+
+            response.setId(record.getId());
+            response.setQuantity(record.getQuantity());
+            response.setRecordDate(record.getRecordDate());
+
+            inouts.add(response);
+        }
 
         GetAllInOutResponseDto response = new GetAllInOutResponseDto(
                 inouts, pagination);
@@ -82,33 +84,30 @@ public class InOutRecordService implements InOutRecordServiceIf {
             response = GetInOutResponseDto.fromEntityCosmetic(inout);
         } else if (inout.getProductFnb() != null) {
             response = GetInOutResponseDto.fromEntityFnb(inout);
+        } else {
+            throw new AppException(404, "Error getting record");
         }
+
+        response.setCreatedBy(new CreatorResponseDto(inout.getCreator().getName(), inout.getCreator().getEmail()));
 
         return response;
     }
 
     @Override
     public void addRecord(AddInOutRequestDto Record) {
-        /*
-         * TODO: implement this logics
-         * - get existing record by date and product id (call
-         * InOutRecordRepository.getRecordByDateAndProductId)
-         * - if record exists, update the record (call
-         * InOutRecordRepository.updateRecord)
-         * - else, insert new record (call InOutRecordRepository.insertRecord)
-         * - throw AppException if there is an exception
-         */
         final ResponseBodyDto responseBody = new ResponseBodyDto();
         UserRepository userRepository = new UserRepository();
         User currentUser = userRepository.getUserByEmail(Record.getCreatedBy());
         if (currentUser == null) {
             throw new AppException(400, "User tidak ditemukan");
         }
+
         try {
             // Check if an existing record exists by date and product ID
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                Date utilDate = sdf.parse(Record.getRecordDate());
+                Date utilDate = sdf
+                        .parse(Record.getRecordDate() + new SimpleDateFormat(" HH:mm:ss").format(new Date()));
                 java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime()); // Convert to java.sql.Date
                 // Insert a new record
                 InOutRecord newRecord = new InOutRecord();
@@ -117,6 +116,7 @@ public class InOutRecordService implements InOutRecordServiceIf {
                 newRecord.setRecordDate(sqlDate);
                 newRecord.setType(Record.getType());
                 newRecord.setCreatedBy(currentUser.getId());
+
                 inOutRecordRepository.insertRecord(newRecord);
                 addRecordToStockRecords(Record);
             } catch (ParseException e) {
@@ -142,10 +142,23 @@ public class InOutRecordService implements InOutRecordServiceIf {
             // Update record details
             existingRecord.setProductId(record.getNewProductId());
             existingRecord.setQuantity(record.getQuantity());
-            existingRecord.setRecordDate(new SimpleDateFormat("yyyy-MM-dd").parse(record.getRecordDate()));
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date utilDate = sdf.parse(record.getRecordDate());
+            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime()); // Convert to java.sql.Date
+
+            existingRecord.setRecordDate(sqlDate);
+
+            int delta = 0;
+            if (existingRecord.getType().equals("in")) {
+                delta = record.getQuantity() - existingRecord.getQuantity();
+            } else {
+                delta = existingRecord.getQuantity() - record.getQuantity();
+            }
 
             // Call repository to update record in database
             inOutRecordRepository.updateRecord(existingRecord);
+            stockRecordRepository.updateCumulativeStocks(productIdString, sqlDate, delta);
 
         } catch (Exception e) {
             throw new AppException(500, "An error occurred while updating the record: " + e.getMessage());
@@ -166,41 +179,66 @@ public class InOutRecordService implements InOutRecordServiceIf {
             if (!isDeleted) {
                 throw new AppException(500, "Failed to delete record");
             }
+
+            int delta = record.getType().equals("in") ? -record.getQuantity() : record.getQuantity();
+            stockRecordRepository.updateCumulativeStocks(id, record.getRecordDate(), delta);
+
         } catch (Exception e) {
             throw new AppException(500, "An error occurred while deleting the record: " + e.getMessage());
         }
     }
 
     // ----- function stock_record bantuan -------
-    public void addRecordToStockRecords(AddInOutRequestDto record) throws ParseException, java.text.ParseException {
+    private void addRecordToStockRecords(AddInOutRequestDto record) throws ParseException, java.text.ParseException {
+        // Parsing tanggal dari data request
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date utilDate = sdf.parse(record.getRecordDate());
-        java.sql.Date recordDate = new java.sql.Date(utilDate.getTime()); // Convert to java.sql.Date
+        java.sql.Date recordDate = new java.sql.Date(utilDate.getTime());
+
+        // Mendapatkan detail produk dari request
         String productId = record.getProductId();
         int quantity = record.getQuantity();
         String type = record.getType();
 
-        // Hitung delta stok berdasarkan tipe transaksi
-        int delta = type.equals("in") ? quantity : -quantity;
+        // Menghitung perubahan stok (delta) berdasarkan jenis transaksi (in/out)
+        int delta = type.equalsIgnoreCase("in") ? quantity : -quantity;
 
-        // Periksa apakah ada record di stock_records untuk tanggal tersebut
+        // Memeriksa apakah sudah ada stok record untuk tanggal dan produk ini
         StockRecord existingRecord = inOutRecordRepository.getStockRecordByDateAndProductId(recordDate, productId);
 
         if (existingRecord != null) {
-            // Update record jika sudah ada
+            // Validasi apakah operasi "out" akan menyebabkan stok negatif
             int updatedStock = existingRecord.getStock() + delta;
+            if (updatedStock < 0) {
+                throw new AppException(400, "Stok tidak boleh negatif untuk produk: " + productId);
+            }
+
+            // Jika valid, update stok yang sudah ada
             inOutRecordRepository.updateStockRecord(updatedStock, recordDate, productId);
+            System.out.println(
+                    "Stok untuk produk " + productId + " pada tanggal " + recordDate + " diperbarui menjadi "
+                            + updatedStock);
         } else {
-            // Insert record baru jika belum ada
-            StockRecord newRecord = new StockRecord(
-                    productId,
-                    delta,
-                    recordDate);
+            // Jika tidak ada record, periksa stok terakhir sebelum tanggal ini
+            StockRecord lastRecordBefore = stockRecordRepository.getLastRecordBeforeDate(productId, recordDate);
+            int lastStock = (lastRecordBefore != null) ? lastRecordBefore.getStock() : 0;
+
+            // Validasi apakah operasi "out" akan menyebabkan stok negatif
+            int newStock = lastStock + delta;
+            if (newStock < 0) {
+                throw new AppException(400, "Stok tidak boleh negatif untuk produk: " + productId);
+            }
+
+            // Jika valid, buat record stok baru
+            StockRecord newRecord = new StockRecord(productId, newStock, recordDate);
             inOutRecordRepository.insertStockRecord(newRecord);
+            System.out.println(
+                    "Stok baru untuk produk " + productId + " pada tanggal " + recordDate + " dimasukkan dengan jumlah "
+                            + newStock);
         }
 
-        // Update kumulatif stok untuk semua tanggal setelah tanggal ini
-        inOutRecordRepository.updateCumulativeStocks(productId, recordDate, delta);
+        // Memperbarui stok kumulatif untuk tanggal-tanggal setelah tanggal ini
+        stockRecordRepository.updateCumulativeStocks(productId, recordDate, delta);
     }
 
 }
