@@ -1,11 +1,15 @@
 package com.pbo.warehouse.api.models;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class InOutRecord extends Model {
     private int id;
     private String productId;
-    private Product product;
+    private ProductCosmetic productCosmetic;
+    private ProductElectronic productElectronic;
+    private ProductFnb productFnb;
     private String type; // in or out
     private int quantity;
     private Date recordDate;
@@ -32,13 +36,28 @@ public class InOutRecord extends Model {
         this.productId = productId;
     }
 
-    public Product getProduct() {
-        return product;
+    public ProductCosmetic getProductCosmetic() {
+        return this.productCosmetic;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
-        this.productId = product.getId();
+    public void setProductCosmetic(ProductCosmetic product) {
+        this.productCosmetic = product;
+    }
+
+    public ProductElectronic getProductElectronic() {
+        return this.productElectronic;
+    }
+
+    public void setProductElectronic(ProductElectronic product) {
+        this.productElectronic = product;
+    }
+
+    public ProductFnb getProductFnb() {
+        return this.productFnb;
+    }
+
+    public void setProductFnb(ProductFnb product) {
+        this.productFnb = product;
     }
 
     public String getType() {
@@ -80,5 +99,19 @@ public class InOutRecord extends Model {
     public void setCreator(User creator) {
         this.creator = creator;
         this.createdBy = creator.getId();
+    }
+
+    public static List<String> toColumns() {
+        List<String> columns = new ArrayList<>();
+        columns.add("id");
+        columns.add("product_id");
+        columns.add("type");
+        columns.add("quantity");
+        columns.add("record_date");
+        columns.add("created_by");
+        columns.add("created_at");
+        columns.add("updated_at");
+
+        return columns;
     }
 }

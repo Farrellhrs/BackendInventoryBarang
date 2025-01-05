@@ -11,7 +11,7 @@ import com.pbo.warehouse.api.dto.ResponseBodyDto;
 import com.pbo.warehouse.api.dto.request.GetProductsRequestDto;
 import com.pbo.warehouse.api.dto.request.UpdateProductRequestDto;
 import com.pbo.warehouse.api.dto.response.GetProductResponseDto;
-import com.pbo.warehouse.api.dto.response.GetProductsResponseDto;
+import com.pbo.warehouse.api.dto.response.GetAllProductsResponseDto;
 import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.models.Product;
 import com.pbo.warehouse.api.models.ProductCosmetic;
@@ -19,8 +19,6 @@ import com.pbo.warehouse.api.models.ProductElectronic;
 import com.pbo.warehouse.api.models.ProductFnb;
 import com.pbo.warehouse.api.services.ProductService;
 import com.pbo.warehouse.api.dto.request.AddProductRequestDto;
-import com.pbo.warehouse.api.dto.request.DeleteProductRequestDto;
-import com.pbo.warehouse.api.dto.response.DeleteProductResponseDto;
 
 import spark.Request;
 import spark.Response;
@@ -96,7 +94,7 @@ public class ProductController implements ProductControllerIf {
                     category,
                     name, sort, sortByDetail, order);
 
-            GetProductsResponseDto response = productService.getProducts(params);
+            GetAllProductsResponseDto response = productService.getProducts(params);
 
             return responseBody.successWithPagination(
                     200,
@@ -194,7 +192,7 @@ public class ProductController implements ProductControllerIf {
     public ResponseBodyDto updateProduct(Request req, Response res) {
         // TODO Auto-generated method stub
         final ResponseBodyDto responseBody = new ResponseBodyDto();
-        
+
         try {
             UpdateProductRequestDto reqBody = gson.fromJson(req.body(), UpdateProductRequestDto.class);
             String id = req.params("id");
@@ -215,7 +213,8 @@ public class ProductController implements ProductControllerIf {
                     Date expireDate = sdf.parse(details.getExpireDate());
                     details.setExpireDate(sdf.format(expireDate));
                 } catch (ParseException e) {
-                    return responseBody.error(400, "Format tanggal expiredDate tidak sesuai yyyy-MM-dd", e.getMessage());
+                    return responseBody.error(400, "Format tanggal expiredDate tidak sesuai yyyy-MM-dd",
+                            e.getMessage());
                 }
             }
 
@@ -231,31 +230,18 @@ public class ProductController implements ProductControllerIf {
         }
     }
 
-
     @Override
     public ResponseBodyDto deleteProduct(Request req, Response res) {
         final ResponseBodyDto responseBody = new ResponseBodyDto();
 
         try {
-            DeleteProductRequestDto reqbody = gson.fromJson(req.body(), DeleteProductRequestDto.class);
-            String product_Id = reqbody.getId();
-            String category = reqbody.getCategory();
-            
-            if (product_Id == null || product_Id.isEmpty()) {
+            String productId = req.params("id");
+            if (productId == null || productId.isEmpty()) {
                 return responseBody.error(400, "ID produk tidak boleh kosong", null);
             }
 
-            if (category == null || category.isEmpty()) {
-                return responseBody.error(400, "Kategori produk tidak boleh kosong", null);
-            }
-
-            List<String> validCategories = List.of("electronic", "cosmetic", "fnb");
-            if (!validCategories.contains(category.toLowerCase())) {
-                return responseBody.error(400, "Kategori produk tidak valid", null);
-            }
-
             try {
-                productService.deleteProduct(product_Id, category);
+                productService.deleteProduct(productId);
                 return responseBody.success(200, "Produk berhasil dihapus", null);
             } catch (AppException e) {
                 return responseBody.error(e.getStatusCode(), e.getMessage(), null);
@@ -265,6 +251,6 @@ public class ProductController implements ProductControllerIf {
         } catch (Exception e) {
             e.printStackTrace();
             return responseBody.error(500, "Terjadi kesalahan server", null);
-        }   
+        }
     }
 }

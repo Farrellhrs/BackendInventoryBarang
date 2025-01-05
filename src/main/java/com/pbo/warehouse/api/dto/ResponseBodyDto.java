@@ -20,7 +20,7 @@ public class ResponseBodyDto {
     @Expose
     private Object pagination;
     @Expose
-    private String error;
+    private Object error;
 
     public ResponseBodyDto success(int statusCode, String message, String data) {
         this.success = true;
@@ -42,7 +42,7 @@ public class ResponseBodyDto {
         return this;
     }
 
-    public ResponseBodyDto error(int statusCode, String message, String error) {
+    public ResponseBodyDto error(int statusCode, String message, Object error) {
         this.success = false;
         this.statusCode = statusCode;
         this.message = message;
@@ -78,7 +78,7 @@ public class ResponseBodyDto {
         return data;
     }
 
-    public String getError() {
+    public Object getError() {
         return error;
     }
 }

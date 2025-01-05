@@ -433,20 +433,32 @@ public class ProductRepository implements ProductRepositoryIf {
     @Override
     public void updateProductElectronic(ProductElectronic product) {
 
-        // TODO: nama table di query salah, jgn hardcode, pake method product.getSubTableName()
+        // TODO: nama table di query salah, jgn hardcode, pake method
+        // product.getSubTableName()
         String query = "UPDATE product_electronics SET type = ? WHERE product_id = ?;";
-System.out.println(query);
+        System.out.println(query);
         try (Connection connection = DatabaseConnection.connect();
-            PreparedStatement stmt = connection.prepareStatement(query)) {
+                PreparedStatement stmt = connection.prepareStatement(query)) {
 
-                System.out.println(product.getType() + " " + product.getId());
+            System.out.println(product.getType() + " " + product.getId());
             stmt.setString(1, product.getType());
             stmt.setString(2, product.getId());
 
             int rowsAffected = stmt.executeUpdate();
             System.out.println("execute query");
-            if (rowsAffected == 0) {
-                throw new AppException(500, "Gagal memperbarui produk elektronik");
+            while (rowsAffected == 0) {
+                query = "INSERT INTO product_electronics (product_id, type) VALUES (?, ?);";
+                System.out.println(query);
+
+                try (Connection connection2 = DatabaseConnection.connect();
+                        PreparedStatement stmt2 = connection2.prepareStatement(query)) {
+                    stmt2.setString(1, product.getId());
+                    stmt2.setString(2, product.getType());
+                    rowsAffected = stmt2.executeUpdate();
+                } catch (SQLException e) {
+                    System.err.println(e.getMessage());
+                    throw new AppException(500, e.getMessage());
+                }
             }
             System.out.println("finish");
         } catch (SQLException e) {
@@ -454,14 +466,14 @@ System.out.println(query);
             throw new AppException(500, e.getMessage());
         }
     }
-    
+
     // TODO: Masukin method ini ke interface
     @Override
-    public void updateProductFnB(ProductFnb product){
+    public void updateProductFnB(ProductFnb product) {
         String query = "UPDATE product_fnbs SET expire_date = ? WHERE product_id = ?";
 
         try (Connection connection = DatabaseConnection.connect();
-            PreparedStatement stmt = connection.prepareStatement(query)) {
+                PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setDate(1, product.getExpireDate());
             stmt.setString(2, product.getId());
@@ -475,14 +487,14 @@ System.out.println(query);
             throw new AppException(500, e.getMessage());
         }
     }
-    
-    // TODO: Masukin method ini ke interface    
+
+    // TODO: Masukin method ini ke interface
     @Override
-    public void updateProductCosmetic(ProductCosmetic product){
+    public void updateProductCosmetic(ProductCosmetic product) {
         String query = "UPDATE product_cosmetics SET expire_date = ? WHERE product_id = ?";
 
         try (Connection connection = DatabaseConnection.connect();
-            PreparedStatement stmt = connection.prepareStatement(query)) {
+                PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setDate(1, product.getExpireDate());
             stmt.setString(2, product.getId());
@@ -496,14 +508,14 @@ System.out.println(query);
             throw new AppException(500, e.getMessage());
         }
     }
-    
+
     @Override
-    public void updateProduct(Product product){
+    public void updateProduct(Product product) {
         System.out.println("start update product parent");
         String query = "UPDATE products SET name = ? WHERE id = ?;";
         System.out.println(query);
         try (Connection connection = DatabaseConnection.connect();
-            PreparedStatement stmt = connection.prepareStatement(query)) {
+                PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setString(1, product.getName());
             stmt.setString(2, product.getId());
@@ -522,36 +534,45 @@ System.out.println(query);
 
     @Override
     public boolean deleteProduct(String productId, String category) {
-        String deleteCategorySQL;
+        String deleteCategoryQuery;
         switch (category.toLowerCase()) {
-            case "fnbs":
-                deleteCategorySQL = "DELETE FROM " + new ProductFnb().getSubTableName() + " WHERE product_id = ?";
+            case "fnb":
+                deleteCategoryQuery = "DELETE FROM " + new ProductFnb().getSubTableName() + " WHERE product_id = ?";
                 break;
             case "cosmetic":
-                deleteCategorySQL = "DELETE FROM " + new ProductCosmetic().getSubTableName() + " WHERE product_id = ?";
+                deleteCategoryQuery = "DELETE FROM " + new ProductCosmetic().getSubTableName()
+                        + " WHERE product_id = ?";
                 break;
             case "electronic":
-                deleteCategorySQL = "DELETE FROM " + new ProductElectronic().getSubTableName() + " WHERE product_id = ?";  
+                deleteCategoryQuery = "DELETE FROM " + new ProductElectronic().getSubTableName()
+                        + " WHERE product_id = ?";
                 break;
             default:
-                throw new IllegalArgumentException("Invalid category: " + category);    
+                throw new IllegalArgumentException("Invalid category: " + category);
         }
 
-        String deleteProductSQL = "DELETE FROM products WHERE id = ?";
+        String deleteProductQuery = "DELETE FROM products WHERE id = ?";
+
+        String deleteInOutRecordQuery = "DELETE FROM in_out_records WHERE product_id = ?";
+
+        String deleteStockRecordQuery = "DELETE FROM stock_records WHERE product_id = ?";
 
         try (Connection conn = DatabaseConnection.connect();
-            PreparedStatement categoryStmt = conn.prepareStatement(deleteCategorySQL);
-            PreparedStatement productStmt = conn.prepareStatement(deleteProductSQL)) {
-            
+                PreparedStatement categoryStmt = conn.prepareStatement(deleteCategoryQuery);
+                PreparedStatement productStmt = conn.prepareStatement(deleteProductQuery);
+                PreparedStatement inOutRecordStmt = conn.prepareStatement(deleteInOutRecordQuery);
+                PreparedStatement stockRecordStmt = conn.prepareStatement(deleteStockRecordQuery)) {
+
             conn.setAutoCommit(false);
 
-            categoryStmt.setString(1, productId);
-            int categoryRows = categoryStmt.executeUpdate();
+            inOutRecordStmt.setString(1, productId);
+            inOutRecordStmt.executeUpdate();
 
-            if (categoryRows == 0) {
-                conn.rollback();
-                return false;
-            }
+            stockRecordStmt.setString(1, productId);
+            stockRecordStmt.executeUpdate();
+
+            categoryStmt.setString(1, productId);
+            categoryStmt.executeUpdate();
 
             productStmt.setString(1, productId);
             int productRows = productStmt.executeUpdate();
@@ -563,7 +584,7 @@ System.out.println(query);
                 conn.rollback();
                 return false;
             }
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

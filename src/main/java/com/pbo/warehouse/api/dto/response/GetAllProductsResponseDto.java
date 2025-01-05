@@ -2,14 +2,14 @@ package com.pbo.warehouse.api.dto.response;
 
 import java.util.List;
 
-public class GetProductsResponseDto {
+public class GetAllProductsResponseDto {
     List<GetProductResponseDto> data;
     PaginationResponse pagination;
 
-    public GetProductsResponseDto() {
+    public GetAllProductsResponseDto() {
     }
 
-    public GetProductsResponseDto(List<GetProductResponseDto> data, PaginationResponse pagination) {
+    public GetAllProductsResponseDto(List<GetProductResponseDto> data, PaginationResponse pagination) {
         this.data = data;
         this.pagination = pagination;
     }
