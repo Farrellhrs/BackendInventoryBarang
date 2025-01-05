@@ -87,13 +87,15 @@ public class DashboardService implements DashboardServiceIf {
         for (StockRecord record : stockRecords) {
             int day = record.getRecordDate().toLocalDate().getDayOfMonth();
 
-            if ("electronic".equals(record.getProduct().getCategory())) {
-                stockElectronic[day - 1] = record.getStock();
-            } else if ("cosmetic".equals(record.getProduct().getCategory())) {
-                stockCosmetic[day - 1] = record.getStock();
-            } else if ("fnb".equals(record.getProduct().getCategory())) {
-                stockFnb[day - 1] = record.getStock();
-                System.out.println(record.getProduct().getCategory());
+            if (day <= daysInMonth) {
+                if ("electronic".equals(record.getProduct().getCategory())) {
+                    stockElectronic[day - 1] = record.getStock();
+                } else if ("cosmetic".equals(record.getProduct().getCategory())) {
+                    stockCosmetic[day - 1] = record.getStock();
+                } else if ("fnb".equals(record.getProduct().getCategory())) {
+                    stockFnb[day - 1] = record.getStock();
+                    System.out.println(record.getProduct().getCategory());
+                }
             }
         }
 
@@ -124,24 +126,28 @@ public class DashboardService implements DashboardServiceIf {
         for (InOutRecord record : inRecords) {
             int day = record.getRecordDate().toLocalDate().getDayOfMonth();
 
-            if ("electronic".equals(record.getProduct().getCategory())) {
-                inboundElectronic[day - 1] = record.getQuantity();
-            } else if ("cosmetic".equals(record.getProduct().getCategory())) {
-                inboundCosmetic[day - 1] = record.getQuantity();
-            } else if ("fnb".equals(record.getProduct().getCategory())) {
-                inboundFnb[day - 1] = record.getQuantity();
+            if (day <= daysInMonth) {
+                if ("electronic".equals(record.getProduct().getCategory())) {
+                    inboundElectronic[day - 1] = record.getQuantity();
+                } else if ("cosmetic".equals(record.getProduct().getCategory())) {
+                    inboundCosmetic[day - 1] = record.getQuantity();
+                } else if ("fnb".equals(record.getProduct().getCategory())) {
+                    inboundFnb[day - 1] = record.getQuantity();
+                }
             }
         }
 
         for (InOutRecord record : outRecords) {
             int day = record.getRecordDate().toLocalDate().getDayOfMonth();
 
-            if ("electronic".equals(record.getProduct().getCategory())) {
-                outboundElectronic[day - 1] = record.getQuantity();
-            } else if ("cosmetic".equals(record.getProduct().getCategory())) {
-                outboundCosmetic[day - 1] = record.getQuantity();
-            } else if ("fnb".equals(record.getProduct().getCategory())) {
-                outboundFnb[day - 1] = record.getQuantity();
+            if (day <= daysInMonth) {
+                if ("electronic".equals(record.getProduct().getCategory())) {
+                    outboundElectronic[day - 1] = record.getQuantity();
+                } else if ("cosmetic".equals(record.getProduct().getCategory())) {
+                    outboundCosmetic[day - 1] = record.getQuantity();
+                } else if ("fnb".equals(record.getProduct().getCategory())) {
+                    outboundFnb[day - 1] = record.getQuantity();
+                }
             }
         }
 
