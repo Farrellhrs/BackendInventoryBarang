@@ -235,7 +235,7 @@ public class ProductController implements ProductControllerIf {
         final ResponseBodyDto responseBody = new ResponseBodyDto();
 
         try {
-            String productId = req.params(":id");
+            String productId = req.params("id");
             if (productId == null || productId.isEmpty()) {
                 return responseBody.error(400, "ID produk tidak boleh kosong", null);
             }
