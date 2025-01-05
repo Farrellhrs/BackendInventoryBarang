@@ -5,12 +5,14 @@ public class RegisterRequestDto {
     private String email;
     private String password;
     private String confirmPassword;
+    private String registerKey;
 
-    public RegisterRequestDto(String name, String email, String password, String confirmPassword) {
+    public RegisterRequestDto(String name, String email, String password, String confirmPassword, String registerKey) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.confirmPassword = confirmPassword;
+        this.registerKey = registerKey;
     }
 
     public String getName() {
@@ -27,5 +29,9 @@ public class RegisterRequestDto {
 
     public String getConfirmPassword() {
         return this.confirmPassword;
+    }
+
+    public String getRegisterKey() {
+        return this.registerKey;
     }
 }

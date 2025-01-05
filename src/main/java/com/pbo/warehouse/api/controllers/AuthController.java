@@ -46,8 +46,9 @@ public class AuthController implements AuthControllerIf {
         String email = registerRequest.getEmail();
         String password = registerRequest.getPassword();
         String confirmPassword = registerRequest.getConfirmPassword();
+        String registerKey = registerRequest.getRegisterKey();
 
-        if (username == null || email == null || password == null || confirmPassword == null) {
+        if (username == null || email == null || password == null || confirmPassword == null || registerKey == null) {
             return responseBody.error(400, "Semua field harus diisi", null);
         }
 
@@ -63,11 +64,5 @@ public class AuthController implements AuthControllerIf {
         } catch (Exception e) {
             return responseBody.error(500, e.getMessage(), null);
         }
-    }
-
-    @Override
-    public void logout(Request req, Response res) {
-        // TODO: Implement logout
-        throw new UnsupportedOperationException("Unimplemented method 'logout'");
     }
 }

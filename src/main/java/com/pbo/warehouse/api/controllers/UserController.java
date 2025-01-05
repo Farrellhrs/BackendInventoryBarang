@@ -2,7 +2,9 @@ package com.pbo.warehouse.api.controllers;
 
 import com.pbo.warehouse.api.controllers.interfaces.UserControllerIf;
 import com.pbo.warehouse.api.dto.ResponseBodyDto;
+import com.pbo.warehouse.api.dto.request.UpdateUserProfileRequestDto;
 import com.pbo.warehouse.api.dto.response.GetUserProfileResponseDto;
+import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.services.UserService;
 
 import spark.Request;
@@ -27,8 +29,33 @@ public class UserController implements UserControllerIf {
 
     @Override
     public ResponseBodyDto updateUserProfile(Request req, Response res) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateUserProfile'");
+        final ResponseBodyDto responseBody = new ResponseBodyDto();
+        UpdateUserProfileRequestDto requestBody = gson.fromJson(req.body(), UpdateUserProfileRequestDto.class);
+
+        String oldEmail = req.attribute("email");
+        if (oldEmail == null) {
+            return responseBody.error(401, "Unauthorized", null);
+        }
+
+        String password = requestBody.getPassword();
+        String confirmPassword = requestBody.getConfirmPassword();
+        
+        if (password != null || confirmPassword != null) {
+            if (!password.equals(confirmPassword)) {
+                return responseBody.error(400, "Password tidak sama", null);
+            }
+        }
+
+        requestBody.setOldEmail(oldEmail);
+
+        try {
+            userService.updateUserProfile(requestBody);
+            return responseBody.success(200, "Update profil berhasil", null);
+        } catch (AppException e) {
+            return responseBody.error(e.getStatusCode(), e.getMessage(), null);
+        } catch (Exception e) {
+            return responseBody.error(500, e.getMessage(), null);
+        }
     }
 
 }

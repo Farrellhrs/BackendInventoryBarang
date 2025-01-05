@@ -213,7 +213,7 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
         ProductFnb productFnb = new ProductFnb();
         int lastStock = 0;
 
-        String query = "SELECT io.id, io.product_id, io.quantity, io.type, io.record_date, io.created_by, p.sku_code, p.name, p.category, p.max_stock, p.created_at, u.name, u.email FROM in_out_records io JOIN products p ON p.id = io.product_id JOIN users u ON p.created_by = u.id WHERE io.id = ?;";
+        String query = "SELECT io.id, io.product_id, io.quantity, io.type, io.record_date, io.created_by, p.sku_code, p.name, p.category, p.max_stock, p.created_at, u.name AS user_name, u.email FROM in_out_records io JOIN products p ON p.id = io.product_id JOIN users u ON p.created_by = u.id WHERE io.id = ?;";
 
         System.out.println(query);
 
@@ -229,7 +229,7 @@ public class InOutRecordRepository implements InOutRecordRepositoryIf {
 
                     User creator = new User();
                     creator.setId(rs.getString("created_by"));
-                    creator.setName(rs.getString("name"));
+                    creator.setName(rs.getString("user_name"));
                     creator.setEmail(rs.getString("email"));
 
                     inout.setCreatedBy(rs.getString("created_by"));

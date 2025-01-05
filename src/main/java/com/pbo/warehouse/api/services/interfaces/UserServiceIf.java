@@ -6,5 +6,5 @@ import com.pbo.warehouse.api.dto.response.GetUserProfileResponseDto;
 public interface UserServiceIf {
     GetUserProfileResponseDto getUserProfile(String email);
 
-    void updateUserProfile(UpdateUserProfileRequestDto user);
+    void updateUserProfile(UpdateUserProfileRequestDto data);
 }

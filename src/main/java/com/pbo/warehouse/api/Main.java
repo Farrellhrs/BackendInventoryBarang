@@ -13,6 +13,7 @@ import com.pbo.warehouse.api.routes.AuthRoute;
 import com.pbo.warehouse.api.routes.DashboardRoute;
 import com.pbo.warehouse.api.routes.InOutRecordRoute;
 import com.pbo.warehouse.api.routes.ProductRoute;
+import com.pbo.warehouse.api.routes.UserRoute;
 
 import spark.Spark;
 
@@ -45,6 +46,7 @@ public class Main {
         ProductRoute.init();
         DashboardRoute.init();
         InOutRecordRoute.init();
+        UserRoute.init();
 
         System.out.println("Server started on port " + PORT);
     }

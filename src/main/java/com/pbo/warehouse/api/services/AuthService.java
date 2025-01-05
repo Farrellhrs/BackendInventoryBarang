@@ -8,12 +8,15 @@ import com.pbo.warehouse.api.dto.response.LoginResponseDto;
 import com.pbo.warehouse.api.dto.response.RegisterResponseDto;
 import com.pbo.warehouse.api.exceptions.AppException;
 import com.pbo.warehouse.api.models.User;
+import com.pbo.warehouse.api.repositories.ConfigRepository;
 import com.pbo.warehouse.api.repositories.UserRepository;
 import com.pbo.warehouse.api.services.interfaces.AuthServiceIf;
 import com.pbo.warehouse.api.utils.JwtUtil;
+import com.pbo.warehouse.api.models.Config;
 
 public class AuthService implements AuthServiceIf {
     private final UserRepository userRepository = new UserRepository();
+    private final ConfigRepository configRepository = new ConfigRepository();
 
     @Override
     public LoginResponseDto login(LoginRequestDto data) {
@@ -34,6 +37,11 @@ public class AuthService implements AuthServiceIf {
 
     @Override
     public RegisterResponseDto register(RegisterRequestDto data) {
+        Config config = configRepository.getConfig();
+        if (!config.getRegisterKey().equals(data.getRegisterKey())) {
+            throw new AppException(400, "Kunci registrasi salah");
+        }
+
         User user = new User(data.getName(), data.getEmail(), data.getPassword());
 
         User existingUser = userRepository.getUserByEmail(data.getEmail());
