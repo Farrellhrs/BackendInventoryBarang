@@ -14,9 +14,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String JDBC_URL = "jdbc:mysql://34.101.49.12:3581/warehouse_db";
-    private static final String DB_USER = "admin_warehouse";
-    private static final String DB_PASSWORD = "pbodsjaya";
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/warehouse_db";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "1234";
 
     // Static method to get a database connection
     public static Connection connect() throws SQLException {
